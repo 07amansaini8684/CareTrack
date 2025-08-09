@@ -1,6 +1,48 @@
+'use client';
+
+import { useUser } from '@auth0/nextjs-auth0/client';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from "next/image";
 
 export default function Home() {
+  const { user, error, isLoading } = useUser();
+  const [mounted, setMounted] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && user && !isLoading) {
+      // Redirect authenticated users to dashboard
+      router.push('/dashboard');
+    }
+  }, [user, isLoading, mounted, router]);
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return (
+      <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
+        <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+          <Image
+            className="dark:invert"
+            src="/next.svg"
+            alt="Next.js logo"
+            width={180}
+            height={38}
+            priority
+          />
+          <div className="flex justify-center items-center">Loading...</div>
+        </main>
+      </div>
+    );
+  }
+
+  if (isLoading) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+  if (error) return <div className="flex justify-center items-center min-h-screen">Error: {error.message}</div>;
+
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -12,6 +54,19 @@ export default function Home() {
           height={38}
           priority
         />
+        
+        {/* Welcome Section */}
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Welcome to CareTrack</h2>
+          <p className="mb-4">Healthcare tracking and management system</p>
+          <a
+            href="/api/auth/login"
+            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+          >
+            Login to Dashboard
+          </a>
+        </div>
+
         <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
           <li className="mb-2 tracking-[-.01em]">
             Get started by editing{" "}

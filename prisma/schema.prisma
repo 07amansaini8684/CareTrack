@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CAREWORKER
+  MANAGER
+}
+
+enum ShiftStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  MISSED
+  OFF
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  profilePicUrl String?
+  role         UserRole @default(CAREWORKER)
+  averageHours Float?
+  totalShifts  Int?
+  lastClockIn  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  shifts Shift[]
+  locations Location[] @relation("LocationCreator")
+
+  @@map("users")
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  name      String
+  latitude  Float
+  longitude Float
+  startTime String
+  endTime   String
+  radius    Float
+  createdBy String
+  createdByUser User @relation("LocationCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  shifts Shift[]
+
+  @@map("locations")
+}
+
+model Shift {
+  id         String   @id @default(cuid())
+  userId     String
+  date       DateTime
+  day        String
+  startTime  String
+  endTime    String
+  locationId String?
+  totalHours Int
+  status     ShiftStatus
+  note       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  @@map("shifts")
+}
