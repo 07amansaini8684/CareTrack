@@ -5,32 +5,31 @@ import { useRouter } from 'next/navigation';
 import DashboardLayout from '../../components/DashboardLayout';
 import RoleGuard from '../../components/RoleGuard';
 import LocationMap from '../../components/Map';
-import { Collapse, Avatar, Button, Space, Tag, Tooltip, Dropdown, Modal, Form, Input, Table, Select, Card, message } from 'antd';
+import LocationNotifications from '../../components/LocationNotifications';
+import { useLocationTracking } from '../../hooks/useLocationTracking';
+import {Button, Tag,  Modal, Form, Input, Table, Select, Card, message } from 'antd';
 import {
   UserOutlined,
   ClockCircleOutlined,
   CalendarOutlined,
   MailOutlined,
-  PhoneOutlined,
   EnvironmentOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
   PlayCircleOutlined,
   PauseCircleOutlined,
   SaveOutlined,
-  TeamOutlined,
-  HeartOutlined,
-  EllipsisOutlined,
   BarChartOutlined,
   TableOutlined,
-  EditOutlined
+  EditOutlined,
+  ExclamationCircleOutlined
 } from '@ant-design/icons';
 import { users, locationData, IndividualShiftData } from '@/app/api/Data/dummy';
 import { useUserContext } from '../../contexts/UserContext';
 import { ROLES } from '../../utils/roleManager';
 import dynamic from 'next/dynamic';
 
-// Dynamically import ApexCharts to avoid SSR issues
+
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 export default function WorkerDashboard() {
@@ -39,9 +38,9 @@ export default function WorkerDashboard() {
   const [currentLocation, setCurrentLocation] = useState<any>(null);
   const [selectedShift, setSelectedShift] = useState<any>(null);
   const [isShiftDetailsVisible, setIsShiftDetailsVisible] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState('current'); // 'current' or 'previous'
+  const [selectedMonth, setSelectedMonth] = useState('current');
 
-  // Shift management states
+
   const [activeShift, setActiveShift] = useState<any>(null);
   const [userShifts, setUserShifts] = useState<any[]>([]);
   const [isStartingShift, setIsStartingShift] = useState(false);
@@ -52,22 +51,46 @@ export default function WorkerDashboard() {
   const [isStartShiftModalVisible, setIsStartShiftModalVisible] = useState(false);
   const [locations, setLocations] = useState<any[]>([]);
 
+  const geofences: any[] = locations.map(location => ({
+    id: location.id,
+    name: location.name,
+    latitude: location.latitude,
+    longitude: location.longitude,
+    radius: (location.radius || 1) * 1000
+  }));
+
+
+  const {
+    currentLocation: userCurrentLocation,
+    isTracking,
+    startSimulation,
+    stopSimulation,
+    simulationIndex
+  } = useLocationTracking(geofences);
+
+
   useEffect(() => {
     if (mounted && user && !isLoading) {
-      // Redirect manager to manager dashboard
+  
       if (isManager) {
         router.push('/dashboard/manager');
       }
     }
   }, [user, isLoading, mounted, router, isManager]);
 
-  // Fetch user shifts and locations
+  
   useEffect(() => {
     if (mounted && user && !isManager && dbUser) {
       fetchUserShifts();
       fetchLocations();
     }
   }, [mounted, user, isManager, dbUser]);
+
+  useEffect(() => {
+    return () => {
+      stopSimulation();
+    };
+  }, [stopSimulation]);
 
   const fetchUserShifts = async () => {
     try {
@@ -76,11 +99,11 @@ export default function WorkerDashboard() {
         const data = await response.json();
         setUserShifts(data.shifts);
 
-        // Find active shift
+  
         const active = data.shifts.find((shift: any) => shift.status === 'IN_PROGRESS');
         setActiveShift(active || null);
 
-        // Update current location based on active shift's location
+        
         if (active && active.location) {
           setCurrentLocation(active.location);
         }
@@ -97,9 +120,9 @@ export default function WorkerDashboard() {
         const data = await response.json();
         setLocations(data.locations);
 
-        // Set current location based on active shift or first available location
+        
         if (data.locations.length > 0) {
-          setCurrentLocation(data.locations[0]); // Use first location as default
+          setCurrentLocation(data.locations[0]);
         }
       }
     } catch (error) {
@@ -276,7 +299,7 @@ export default function WorkerDashboard() {
     return 'Offline';
   };
 
-  // Table columns for user shifts
+  
   const shiftTableColumns = [
     {
       title: 'Date',
@@ -338,9 +361,9 @@ export default function WorkerDashboard() {
     },
   ];
 
-  // Process data for chart - Individual worker data with month filtering
+  
   const processChartData = () => {
-    // Get current date and calculate month boundaries
+
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
@@ -356,7 +379,7 @@ export default function WorkerDashboard() {
       targetYear = currentMonth === 0 ? currentYear - 1 : currentYear;
     }
 
-    // Filter user shifts based on selected month
+    
     const filteredData = userShifts.filter(shift => {
       const shiftDate = new Date(shift.date);
       return shiftDate.getMonth() === targetMonth &&
@@ -378,7 +401,7 @@ export default function WorkerDashboard() {
 
   const { categories, series } = processChartData();
 
-  // Calculate individual worker statistics based on selected month
+  
   const getMonthData = () => {
     const now = new Date();
     const currentMonth = now.getMonth();
@@ -401,6 +424,8 @@ export default function WorkerDashboard() {
         shiftDate.getFullYear() === targetYear;
     });
   };
+
+
 
   const monthData = getMonthData();
   const totalShifts = monthData.filter(shift => shift.status === 'COMPLETED').length;
@@ -425,19 +450,18 @@ export default function WorkerDashboard() {
         <div className="px-6 py-8 sm:px-8 max-w-8xl mx-auto">
 
 
-          {/* Main Content Grid - First Row */}
+  
           <div className="flex gap-4 h-full mb-6">
-            {/* Show Location Information only when active shift */}
-            {activeShift ? (
-              /* Active Shift - Location Info Section */
+  
+                          {activeShift ? (
               <div className="flex-1 bg-white p-6 rounded-3xl">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-semibold text-gray-900">Current Work Location</h2>
                 </div>
 
-                {/* Two-column layout for location info */}
+  
                 <div className="flex gap-4 mb-4">
-                  {/* Left Section - Location Details */}
+                  
                   <div className="flex-1 bg-gray-50 rounded-lg p-4 rounded-xl">
                     <div className="space-y-2">
                       <div className="text-sm font-medium text-gray-900">
@@ -455,7 +479,7 @@ export default function WorkerDashboard() {
                     </div>
                   </div>
 
-                  {/* Right Section - Shift Status */}
+                  
                   <div className="flex-1 bg-green-50 rounded-lg p-4 rounded-xl">
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2 flex-wrap">
@@ -476,13 +500,13 @@ export default function WorkerDashboard() {
                   </div>
                 </div>
 
-                {/* Main Title Section */}
+                
                 <div className="mb-4">
                   <h3 className="text-sm font-medium text-gray-700 mb-2">Staff Information</h3>
                   <h1 className="text-2xl font-bold text-gray-900">ACTIVE SHIFT</h1>
                 </div>
 
-                {/* Action Card - Dark Background */}
+                
                 <div className="bg-gray-800 p-5 text-white rounded-3xl mb-4">
                   <div className="mb-3">
                     <div className="text-xs text-gray-300 mb-1">Current Status</div>
@@ -522,7 +546,7 @@ export default function WorkerDashboard() {
                   </div>
                 </div>
 
-                {/* End Shift Button - Full Width */}
+                
                 <Button
                   type="primary"
                   size="large"
@@ -535,38 +559,36 @@ export default function WorkerDashboard() {
                   End Current Shift
                 </Button>
               </div>
-            ) : (
-              /* No Active Shift - Simple Start Button */
-              /* Enhanced No Active Shift - Professional Start Interface */
+                          ) : (
               <div className="flex-1 bg-gradient-to-br from-white to-gray-50 p-8 rounded-3xl flex flex-col justify-center shadow-sm border border-gray-100">
                 <div className="text-center max-w-md mx-auto">
-                  {/* Welcome Header */}
+
                   <div className="mb-6">
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">Ready to Start?</h2>
                     <p className="text-gray-600 text-sm">Begin your shift and start tracking your work time</p>
                   </div>
 
-                  {/* Icon Container */}
+                  
                   <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 mb-6 border border-blue-100">
                     <div className="relative">
-                      {/* Main Clock Icon */}
+
                       <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                         <ClockCircleOutlined className="text-white text-3xl" style={{ fontSize: '32px' }} />
                       </div>
 
-                      {/* Decorative Elements */}
+
                       <div className="absolute top-2 right-8 w-3 h-3 bg-blue-300 rounded-full opacity-60"></div>
                       <div className="absolute bottom-2 left-8 w-2 h-2 bg-indigo-300 rounded-full opacity-40"></div>
                     </div>
 
-                    {/* Status Text */}
+
                     <div className="text-center">
                       <p className="text-gray-700 font-medium mb-1">No Active Shift</p>
                       <p className="text-gray-500 text-xs">Click below to begin tracking</p>
                     </div>
                   </div>
 
-                  {/* Action Button */}
+                  
                   <Button
                     type="primary"
                     size="large"
@@ -579,7 +601,7 @@ export default function WorkerDashboard() {
                     {isStartingShift ? 'Starting Shift...' : 'Start New Shift'}
                   </Button>
 
-                  {/* Quick Stats or Info */}
+                  
                   <div className="mt-6 pt-4 border-t border-gray-200">
                     <div className="flex justify-center items-center text-xs text-gray-500 space-x-4">
                       <span className="flex items-center">
@@ -600,7 +622,7 @@ export default function WorkerDashboard() {
               </div>
             )}
 
-            {/* Map Section */}
+            
             <div className="flex-1 bg-white rounded-lg p-4">
               <div className="mb-4">
                 <div className="flex items-center space-x-2 mb-2">
@@ -608,13 +630,125 @@ export default function WorkerDashboard() {
                   <h2 className="text-lg font-semibold text-gray-900">
                     {activeShift && activeShift.location ? 'Current Work Location' : 'Location Map'}
                   </h2>
+                  {isTracking && (
+                    <Tag color="orange" className="ml-2">
+                      <span className="flex items-center">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full mr-1 animate-pulse"></div>
+                        Test Mode
+                      </span>
+                    </Tag>
+                  )}
                 </div>
                 <p className="text-sm text-gray-600">
                   {activeShift && activeShift.location ? 
-                    `Currently working at ${activeShift.location.name}` : 
-                    'Real-time location tracking and monitoring'
+                    `Currently working at ${activeShift.location.name}${isTracking ? ' - Test simulation active' : ''}` : 
+                    `Real-time location tracking and monitoring${isTracking ? ' - Test simulation active' : ''}`
                   }
+                  {isTracking && (
+                    <span className="block mt-1 text-orange-600 font-medium">
+                      🧪 Using simulated coordinates for testing
+                    </span>
+                  )}
+                  
+                          {/* Current Test Location Info */}
+        {isTracking && simulationIndex !== null && (
+          <div className="mt-2 text-xs text-gray-600">
+            🧪 Simulation Mode: Active
+            <span className="ml-2 text-xs">
+              (Teleporting in/out of the {activeShift?.location?.radius || 3}km radius)
+            </span>
+          </div>
+        )}
+                  
+                  {/* Initial Real Location Status */}
+                  {!isTracking && userCurrentLocation && (
+                    <div className="mt-2 text-xs text-green-600">
+                      📍 Real GPS Location: {userCurrentLocation.latitude.toFixed(4)}, {userCurrentLocation.longitude.toFixed(4)}
+                      <span className="ml-2 text-xs text-gray-500">
+                        (Accuracy: ±{Math.round(userCurrentLocation.accuracy || 0)}m)
+                      </span>
+                    </div>
+                  )}
+                  
+                  <div className="mt-2 flex gap-2">
+                    {!isTracking && (
+                      <Button 
+                        size="small" 
+                        type="primary"
+                        onClick={startSimulation}
+                        className="bg-green-500 border-green-500"
+                      >
+                        🧪 Start Test Simulation
+                      </Button>
+                    )}
+                    {isTracking && (
+                      <Button 
+                        size="small" 
+                        type="primary" 
+                        danger
+                        onClick={stopSimulation}
+                        className="bg-red-500 border-red-500"
+                      >
+                        ⏹️ Stop Simulation
+                      </Button>
+                    )}
+                  </div>
                 </p>
+                {userCurrentLocation && activeShift?.location && (
+                  <div className="mt-2 text-xs text-gray-500">
+                    Your location: {userCurrentLocation.latitude.toFixed(4)}, {userCurrentLocation.longitude.toFixed(4)}
+                    {userCurrentLocation.accuracy && ` (±${Math.round(userCurrentLocation.accuracy)}m)`}
+                  </div>
+                )}
+                
+                {/* Geofence Status Indicator */}
+                {userCurrentLocation && activeShift?.location && (
+                  <div className="mt-2">
+                    {(() => {
+                      // Calculate distance from work location
+                      const R = 6371e3; // Earth's radius in meters
+                      const lat1 = userCurrentLocation.latitude * Math.PI/180;
+                      const lat2 = activeShift.location.latitude * Math.PI/180;
+                      const deltaLat = (activeShift.location.latitude - userCurrentLocation.latitude) * Math.PI/180;
+                      const deltaLon = (activeShift.location.longitude - userCurrentLocation.longitude) * Math.PI/180;
+                      
+                      const a = Math.sin(deltaLat/2) * Math.sin(deltaLat/2) +
+                              Math.cos(lat1) * Math.cos(lat2) *
+                              Math.sin(deltaLon/2) * Math.sin(deltaLon/2);
+                      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                      const distanceInMeters = R * c;
+                      
+                      const radiusInMeters = activeShift.location.radius * 1000;
+                      const isInside = distanceInMeters <= radiusInMeters;
+                      
+                      return (
+                        <div className="flex items-center space-x-2">
+                          <Tag 
+                            color={isInside ? 'green' : 'red'} 
+                            className="text-xs"
+                          >
+                            {isInside ? (
+                              <>
+                                <CheckCircleOutlined className="mr-1" />
+                                Inside Work Area
+                              </>
+                            ) : (
+                              <>
+                                <ExclamationCircleOutlined className="mr-1" />
+                                Outside Work Area
+                              </>
+                            )}
+                          </Tag>
+                          <span className="text-xs text-gray-500">
+                            {Math.round(distanceInMeters)}m from center
+                            {isInside ? ' (within ' : ' (outside '}
+                            {activeShift.location.radius}km radius)
+                          </span>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
               </div>
               <div className="w-full h-full">
                 <LocationMap 
@@ -622,15 +756,21 @@ export default function WorkerDashboard() {
                     {
                       latitude: activeShift.location.latitude,
                       longitude: activeShift.location.longitude,
-                      name: activeShift.location.name
+                      name: activeShift.location.name,
+                      radius: activeShift.location.radius
                     } : 
                     currentLocation
-                  } 
+                  }
+                  userLocation={userCurrentLocation ? {
+                    latitude: userCurrentLocation.latitude,
+                    longitude: userCurrentLocation.longitude,
+                    accuracy: userCurrentLocation.accuracy
+                  } : undefined}
                 />
               </div>
             </div>
 
-            {/* Statistics Box - Individual Worker Stats */}
+
             <div className="flex-1 bg-white rounded-lg p-4">
               <div className="mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">
@@ -640,7 +780,7 @@ export default function WorkerDashboard() {
               </div>
 
               <div className="space-y-4">
-                {/* Total Shifts */}
+  
                 <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -655,7 +795,7 @@ export default function WorkerDashboard() {
                   </div>
                 </div>
 
-                {/* Total Hours */}
+  
                 <div className="bg-green-50 rounded-lg p-4 border border-green-100">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -670,7 +810,7 @@ export default function WorkerDashboard() {
                   </div>
                 </div>
 
-                {/* Completed Shifts */}
+  
                 <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-100">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -685,7 +825,7 @@ export default function WorkerDashboard() {
                   </div>
                 </div>
 
-                {/* Average Hours */}
+  
                 <div className="bg-purple-50 rounded-lg p-4 border border-purple-100">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -703,9 +843,9 @@ export default function WorkerDashboard() {
             </div>
           </div>
 
-          {/* Second row containing the table and chart */}
+          
           <div className="flex gap-4 h-full w-full gap-2 mt-6 flex-col ">
-            {/* the chart box */}
+            
             <div className="w-full flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
@@ -826,7 +966,7 @@ export default function WorkerDashboard() {
               </div>
             </div>
 
-            {/* the table box */}
+            
             <div className='w-full flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-4'>
               <div className="mb-4">
                 <div className="flex items-center space-x-2 mb-2">
@@ -856,7 +996,7 @@ export default function WorkerDashboard() {
           </div>
         </div>
 
-        {/* Start Shift Modal */}
+
         <Modal
           title="Start New Shift"
           open={isStartShiftModalVisible}
@@ -895,7 +1035,7 @@ export default function WorkerDashboard() {
           </Form>
         </Modal>
 
-        {/* Edit Note Modal */}
+
         <Modal
           title="Edit Shift Note"
           open={isNoteModalVisible}
@@ -920,7 +1060,7 @@ export default function WorkerDashboard() {
           </Form>
         </Modal>
 
-        {/* Shift Details Modal */}
+
         <Modal
           title={
             <div className="flex items-center space-x-2">
@@ -939,7 +1079,7 @@ export default function WorkerDashboard() {
         >
           {selectedShift && (
             <div className="space-y-6">
-              {/* Header Section */}
+
               <div className="flex items-center space-x-4 pb-4 border-b border-gray-200">
                 <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
                   <CalendarOutlined className="text-white text-2xl" />
@@ -959,7 +1099,7 @@ export default function WorkerDashboard() {
                 </div>
               </div>
 
-              {/* Shift Information */}
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
@@ -993,7 +1133,7 @@ export default function WorkerDashboard() {
                 </div>
               </div>
 
-              {/* Notes Section */}
+
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <MailOutlined className="text-blue-600" />
@@ -1008,6 +1148,23 @@ export default function WorkerDashboard() {
             </div>
           )}
         </Modal>
+
+
+        {/* Location Notifications - Show when user enters/exits work areas */}
+        <LocationNotifications 
+          userLocation={userCurrentLocation ? {
+            latitude: userCurrentLocation.latitude,
+            longitude: userCurrentLocation.longitude,
+            accuracy: userCurrentLocation.accuracy
+          } : undefined}
+          workLocation={locations.length > 0 ? {
+            latitude: locations[0].latitude,
+            longitude: locations[0].longitude,
+            radius: locations[0].radius,
+            name: locations[0].name
+          } : undefined}
+        />
+
       </DashboardLayout>
     </RoleGuard>
   );

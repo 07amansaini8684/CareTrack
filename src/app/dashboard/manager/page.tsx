@@ -43,7 +43,7 @@ export default function ManagerDashboard() {
   const [isCreatingLocation, setIsCreatingLocation] = useState(false);
   const [locations, setLocations] = useState<any[]>([]);
   
-  // Real data states
+ 
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [allShifts, setAllShifts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -57,7 +57,7 @@ export default function ManagerDashboard() {
         const data = await response.json();
         setLocations(data.locations);
         if (data.locations.length > 0) {
-          setCurrentLocation(data.locations[0]); // Set first location as current
+          setCurrentLocation(data.locations[0]);  
         }
       }
     } catch (error) {
@@ -322,7 +322,7 @@ export default function ManagerDashboard() {
 
   // Process data for chart - Time series by date
   const processChartData = () => {
-    // Group shifts by date
+ 
     const shiftsByDate = allShifts.reduce((acc, shift) => {
       const date = new Date(shift.date).toLocaleDateString();
       if (!acc[date]) {
@@ -336,7 +336,7 @@ export default function ManagerDashboard() {
       }
       acc[date].total += 1;
 
-      // Type-safe status increment using database status values
+     
       if (shift.status === 'COMPLETED') acc[date].completed += 1;
       else if (shift.status === 'IN_PROGRESS') acc[date].in_progress += 1;
       else if (shift.status === 'MISSED') acc[date].missed += 1;
