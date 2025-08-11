@@ -252,7 +252,7 @@ export default function ManagerDashboard() {
         <div className="flex items-center space-x-2">
           <Avatar size="small" src={user?.profilePicUrl} icon={<UserOutlined />} />
           <div className="flex flex-col ml-2">
-            <div className="font-medium">{user?.name || 'Unknown'}</div>
+            <div className="font-medium text-sm">{user?.name || 'Unknown'}</div>
             <div className="text-xs text-gray-500">{user?.email}</div>
           </div>
         </div>
@@ -263,10 +263,11 @@ export default function ManagerDashboard() {
       key: 'date',
       render: (record: any) => (
         <div>
-          <div className="font-medium">{formatDate(record.date)}</div>
+          <div className="font-medium text-sm">{formatDate(record.date)}</div>
           <div className="text-xs text-gray-500">{record.day}</div>
         </div>
       ),
+      responsive: ['md'],
     },
     {
       title: 'Time',
@@ -284,7 +285,7 @@ export default function ManagerDashboard() {
       key: 'location',
       render: (location: any) => (
         <div>
-          <div className="font-medium">{location?.name || 'No location'}</div>
+          <div className="font-medium text-sm">{location?.name || 'No location'}</div>
           {location && (
             <div className="text-xs text-gray-500">
               {location.latitude.toFixed(2)}, {location.longitude.toFixed(2)}
@@ -292,6 +293,7 @@ export default function ManagerDashboard() {
           )}
         </div>
       ),
+      responsive: ['lg'],
     },
     {
       title: 'Status',
@@ -420,19 +422,19 @@ export default function ManagerDashboard() {
   return (
     <RoleGuard requiredRole={ROLES.MANAGER}>
       <DashboardLayout>
-        <div className="px-6 py-8 sm:px-8 max-w-8xl mx-auto">
+        <div className="px-3 py-4 sm:px-6 lg:px-8 max-w-8xl mx-auto dashboard-content">
           {/* Statistics Row */}
-          <div className="flex gap-4 mb-8 w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 lg:mb-8 w-full">
             {/* Total Shifts */}
-            <div className="bg-white flex-1 flex-grow rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-start gap-4 justify-between">
-                <div className="w-14 h-14 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg p-2">
-                  <CalendarOutlined className="text-white text-2xl" />
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+              <div className="flex items-start gap-3 sm:gap-4 justify-between">
+                <div className="w-10 h-10 sm:w-14 sm:h-14 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg p-2">
+                  <CalendarOutlined className="text-white text-lg sm:text-2xl" />
                 </div>
                 <div className='text-right'>
-                  <p className="text-xl font-semibold text-gray-600">Total Shifts</p>
-                  <p className="text-2xl font-bold text-gray-900">{allShifts.length}</p>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-base sm:text-xl font-semibold text-gray-600">Total Shifts</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">{allShifts.length}</p>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">
                     {allShifts.filter(shift => shift.status === 'COMPLETED').length} completed
                   </p>
                 </div>
@@ -440,15 +442,15 @@ export default function ManagerDashboard() {
             </div>
 
             {/* Total Workers */}
-            <div className="bg-white flex-1 flex-grow rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-start gap-4 justify-between">
-                <div className="w-14 h-14 bg-green-500 rounded-xl flex items-center justify-center shadow-lg p-2">
-                  <TeamOutlined className="text-white text-2xl" />
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+              <div className="flex items-start gap-3 sm:gap-4 justify-between">
+                <div className="w-10 h-10 sm:w-14 sm:h-14 bg-green-500 rounded-xl flex items-center justify-center shadow-lg p-2">
+                  <TeamOutlined className="text-white text-lg sm:text-2xl" />
                 </div>
                 <div className='text-right'>
-                  <p className="text-xl font-semibold text-gray-600">Total Workers</p>
-                  <p className="text-2xl font-bold text-gray-900">{allUsers.filter(user => user.role === 'CAREWORKER').length}</p>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-base sm:text-xl font-semibold text-gray-600">Total Workers</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">{allUsers.filter(user => user.role === 'CAREWORKER').length}</p>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">
                     {allUsers.filter(user => user.role === 'CAREWORKER' && user.lastClockIn).length} active
                   </p>
                 </div>
@@ -456,19 +458,19 @@ export default function ManagerDashboard() {
             </div>
 
             {/* Total Hours */}
-            <div className="bg-white flex-1 flex-grow rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-start gap-4 justify-between">
-                <div className="w-14 h-14 bg-yellow-500 rounded-xl flex items-center justify-center shadow-lg p-2">
-                  <ClockCircleOutlined className="text-white text-2xl" />
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+              <div className="flex items-start gap-3 sm:gap-4 justify-between">
+                <div className="w-10 h-10 sm:w-14 sm:h-14 bg-yellow-500 rounded-xl flex items-center justify-center shadow-lg p-2">
+                  <ClockCircleOutlined className="text-white text-lg sm:text-2xl" />
                 </div>
                 <div className='text-right'>
-                  <p className="text-xl font-semibold text-gray-600">Total Hours</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-base sm:text-xl font-semibold text-gray-600">Total Hours</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">
                     {allShifts.reduce((total, shift) => {
                       return total + shift.totalHours;
                     }, 0).toFixed(0)}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">
                     {allShifts.filter(shift => shift.status === 'COMPLETED').length} shifts completed
                   </p>
                 </div>
@@ -476,19 +478,19 @@ export default function ManagerDashboard() {
             </div>
 
             {/* Average Shift Duration */}
-            <div className="bg-white flex-1 flex-grow rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-start gap-4 justify-between">
-                <div className="w-14 h-14 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg p-2">
-                  <SaveOutlined className="text-white text-2xl" />
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+              <div className="flex items-start gap-3 sm:gap-4 justify-between">
+                <div className="w-10 h-10 sm:w-14 sm:h-14 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg p-2">
+                  <SaveOutlined className="text-white text-lg sm:text-2xl" />
                 </div>
                 <div className='text-right'>
-                  <p className="text-xl font-semibold text-gray-600">Avg. Shift Duration</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-base sm:text-xl font-semibold text-gray-600">Avg. Shift Duration</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">
                     {allShifts.length > 0 ? (allShifts.reduce((total, shift) => {
                       return total + shift.totalHours;
                     }, 0) / allShifts.length).toFixed(1) : '0'}h
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">
                     {allShifts.filter(shift => shift.status === 'IN_PROGRESS').length} in progress
                   </p>
                 </div>
@@ -496,12 +498,12 @@ export default function ManagerDashboard() {
             </div>
           </div>
 
-          {/*  first row */}
-          <div className="flex gap-4 h-full">
+          {/* Main Content Row */}
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6 h-full max-w-7xl mx-auto">
             {/* Clock-in Location Info Section */}
-            <div className="flex-1 bg-white p-6 rounded-3xl">
+            <div className="bg-white p-4 sm:p-6 rounded-2xl xl:rounded-3xl shadow-sm border border-gray-200">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Location Information</h2>
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">Location Information</h2>
                 <Dropdown
                   menu={{
                     items: [
@@ -520,15 +522,15 @@ export default function ManagerDashboard() {
                   trigger={['click']}
                 >
                   <Space className="cursor-pointer">
-                    <EllipsisOutlined style={{ color: 'black', fontSize: '28px' }} />
+                    <EllipsisOutlined style={{ color: 'black', fontSize: '20px' }} className="text-lg sm:text-2xl" />
                   </Space>
                 </Dropdown>
               </div>
 
               {/* Two-column layout for location info */}
-              <div className="flex gap-4 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                 {/* Left Section - White Background */}
-                <div className="flex-1 bg-gray-50 rounded-lg p-4 rounded-xl">
+                <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
                   <div className="space-y-2">
                     <div className="text-sm font-medium text-gray-900">{currentLocation?.name}</div>
                     <div className="text-xs text-gray-500">Location Details</div>
@@ -537,19 +539,19 @@ export default function ManagerDashboard() {
                 </div>
 
                 {/* Right Section - Light Green Background */}
-                <div className="flex-1 bg-green-50 rounded-lg p-4 rounded-xl">
+                <div className="bg-green-50 rounded-lg p-3 sm:p-4">
                   <div className="space-y-3">
                     <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center">
-                        <TeamOutlined className="text-white text-sm" />
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-400 rounded-full flex items-center justify-center">
+                        <TeamOutlined className="text-white text-xs sm:text-sm" />
                       </div>
-                      <span className="text-sm font-medium text-green-800">Clock-in Time</span>
+                      <span className="text-xs sm:text-sm font-medium text-green-800">Clock-in Time</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 bg-green-400 rounded-full flex items-center justify-center">
-                        <HeartOutlined className="text-white text-sm" />
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-400 rounded-full flex items-center justify-center">
+                        <HeartOutlined className="text-white text-xs sm:text-sm" />
                       </div>
-                      <span className="text-sm font-medium text-green-800">Radius: {currentLocation?.radius}km</span>
+                      <span className="text-xs sm:text-sm font-medium text-green-800">Radius: {currentLocation?.radius}km</span>
                     </div>
                   </div>
                 </div>
@@ -558,33 +560,33 @@ export default function ManagerDashboard() {
               {/* Main Title Section */}
               <div className="mb-4">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">Staff Information</h3>
-                <h1 className="text-2xl font-bold text-gray-900">CLOCK-IN STAFF</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">CLOCK-IN STAFF</h1>
               </div>
 
               {/* Action Card - Dark Background */}
-              <div className="bg-gray-800 p-5 text-white rounded-3xl">
+              <div className="bg-gray-800 p-4 sm:p-5 text-white rounded-2xl xl:rounded-3xl">
                 <div className="mb-3">
                   <div className="text-xs text-gray-300 mb-1">Location Information</div>
-                  <div className="text-lg font-bold text-white">CLOCK-IN STAFF</div>
+                  <div className="text-base sm:text-lg font-bold text-white">CLOCK-IN STAFF</div>
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
-                        <SaveOutlined className="text-white text-sm" />
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                        <SaveOutlined className="text-white text-xs sm:text-sm" />
                       </div>
                       <div>
                         <div className="text-sm font-medium text-orange-400">Save</div>
                         <div className="text-xs text-gray-300">Clock-in time</div>
                       </div>
                     </div>
-                    <div className="text-lg font-bold text-white">{careworkers.length}</div>
+                    <div className="text-base sm:text-lg font-bold text-white">{careworkers.length}</div>
                   </div>
 
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                      <EnvironmentOutlined className="text-white text-sm" />
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-500 rounded-full flex items-center justify-center">
+                      <EnvironmentOutlined className="text-white text-xs sm:text-sm" />
                     </div>
                     <div className="text-sm text-white">
                       {currentLocation?.name} ({currentLocation?.latitude.toFixed(2)}, {currentLocation?.longitude.toFixed(2)})
@@ -595,22 +597,22 @@ export default function ManagerDashboard() {
             </div>
 
             {/* Map Section */}
-            <div className="flex-1 bg-white rounded-lg p-4">
+            <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm border border-gray-200">
               <div className="mb-4">
                 <div className="flex items-center space-x-2 mb-2">
-                  <EnvironmentOutlined className="text-blue-600 text-xl" style={{ fontSize: '28px', color: 'black' }} />
-                  <h2 className="text-lg font-semibold text-gray-900">Location Map</h2>
+                  <EnvironmentOutlined className="text-blue-600 text-lg sm:text-xl" />
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900">Location Map</h2>
                 </div>
                 <p className="text-sm text-gray-600">Real-time location tracking and monitoring</p>
               </div>
-              <div className="w-full h-full">
+              <div className="w-full h-64 sm:h-80 xl:h-full">
                 <LocationMap currentLocation={currentLocation} />
               </div>
             </div>
             {/* User List Section */}
-            <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4">
               <div className="mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Active Workers ({careworkers?.length})</h2>
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">Active Workers ({careworkers?.length})</h2>
               </div>
 
               <div className="divide-y divide-gray-100 max-h-96 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
@@ -626,25 +628,25 @@ export default function ManagerDashboard() {
                       {
                         key: user.id,
                         label: (
-                          <div className="flex items-center justify-between w-full px-3 py-3 bg-gray-50 rounded-lg">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full px-3 py-3 bg-gray-50 rounded-lg gap-2 sm:gap-0">
                             {/* Left side - Avatar and Name */}
-                            <div className="flex items-center space-x-4 gap-2">
+                            <div className="flex items-center space-x-3 sm:space-x-4 gap-2">
                               <Avatar
-                                size={44}
+                                size={40}
                                 src={user.profilePicUrl}
                                 icon={<UserOutlined />}
                                 className="border-2 border-gray-200"
                               />
                               <div className="flex flex-col">
-                                <span className="font-medium text-gray-900">{user.name}</span>
-                                <span className="text-sm text-gray-500">{user.role}</span>
+                                <span className="font-medium text-gray-900 text-sm sm:text-base">{user.name}</span>
+                                <span className="text-xs sm:text-sm text-gray-500">{user.role}</span>
                               </div>
                             </div>
 
                             {/* Middle section - Status and Data */}
                             <div className="flex items-center space-x-4">
                               <div className="text-right">
-                                <div className="text-sm font-medium text-gray-900">
+                                <div className="text-xs sm:text-sm font-medium text-gray-900">
                                   {user.lastClockIn ? getTimeAgo(user.lastClockIn) : 'N/A'}
                                 </div>
                                 <div className="text-xs text-gray-500">
@@ -720,49 +722,54 @@ export default function ManagerDashboard() {
               </div>
             </div>
           </div>
-          {/* this would be second row containing the table and chart */}
-          <div className="flex gap-4 h-full w-full gap-2 mt-6 flex-col">
-            {/* the table box */}
-            <div className='w-full flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-4'>
+          {/* Charts and Tables Row - Full Width Stacked */}
+          <div className="space-y-6 mt-6 max-w-7xl mx-auto">
+            {/* Table Section - Full Width */}
+            <div className='bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4'>
               <div className="mb-4">
                 <div className="flex items-center space-x-2 mb-2">
-                  <TableOutlined className="text-blue-600 text-xl" style={{ fontSize: '28px', color: 'black' }} />
-                  <h2 className="text-lg font-semibold text-gray-900">Shift Management</h2>
+                  <TableOutlined className="text-blue-600 text-lg sm:text-xl" />
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900">Shift Management</h2>
                 </div>
                 <p className="text-sm text-gray-600">Track and manage employee shifts</p>
               </div>
-              <Table
-                columns={shiftTableColumns}
-                dataSource={allShifts}
-                rowKey="id"
-                loading={loading}
-                onRow={(record) => ({
-                  onClick: () => handleRowClick(record),
-                  className: 'cursor-pointer hover:bg-blue-50 transition-colors duration-200'
-                })}
-                pagination={{
-                  pageSize: 5,
-                  showSizeChanger: true,
-                  showQuickJumper: true,
-                  showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-                }}
-                scroll={{ x: 600 }}
-                size="small"
-                locale={{ 
-                  emptyText: dataLoaded ? 'No shifts found' : 'Loading shifts...' 
-                }}
-              />
+              <div className="overflow-x-auto table-container table-responsive">
+                <Table
+                  columns={shiftTableColumns}
+                  dataSource={allShifts}
+                  rowKey="id"
+                  loading={loading}
+                  onRow={(record) => ({
+                    onClick: () => handleRowClick(record),
+                    className: 'cursor-pointer hover:bg-blue-50 transition-colors duration-200'
+                  })}
+                  pagination={{
+                    pageSize: 5,
+                    showSizeChanger: false,
+                    showQuickJumper: false,
+                    showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`,
+                    size: 'small',
+                    responsive: true,
+                  }}
+                  scroll={{ x: 'max-content' }}
+                  size="small"
+                  className="responsive-table"
+                  locale={{ 
+                    emptyText: dataLoaded ? 'No shifts found' : 'Loading shifts...' 
+                  }}
+                />
+              </div>
             </div>
-            {/* the chart box */}
-            <div className="w-full flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            {/* Chart Section - Full Width */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4">
               <div className="mb-4">
                 <div className="flex items-center space-x-2 mb-2">
-                  <BarChartOutlined className="text-blue-600 text-xl" style={{ fontSize: '28px', color: 'black' }} />
-                  <h2 className="text-lg font-semibold text-gray-900">Daily Shift Activity</h2>
+                  <BarChartOutlined className="text-blue-600 text-lg sm:text-xl" />
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900">Daily Shift Activity</h2>
                 </div>
                 <p className="text-sm text-gray-600">Track shifts by date with completion status</p>
               </div>
-              <div className="h-full">
+              <div className="h-64 sm:h-80 xl:h-96 chart-container chart-responsive">
                 <Chart
                   options={{
                     chart: {
@@ -876,7 +883,8 @@ export default function ManagerDashboard() {
           onCancel={handleModalCancel}
           okText="Save"
           cancelText="Cancel"
-          width={600}
+          width="90%"
+          style={{ maxWidth: '600px' }}
           confirmLoading={isCreatingLocation}
         >
           <Form
@@ -994,12 +1002,13 @@ export default function ManagerDashboard() {
               Close
             </Button>
           ]}
-          width={600}
+          width="90%"
+          style={{ maxWidth: '600px' }}
         >
           {selectedShift && (
             <div className="space-y-6">
               {/* Header Section */}
-              <div className="flex items-center space-x-4 pb-4 border-b border-gray-200">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 pb-4 border-b border-gray-200">
                 <Avatar size={64} src={selectedShift.profile_pic} icon={<UserOutlined />} />
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">{selectedShift.name}</h3>
@@ -1017,7 +1026,7 @@ export default function ManagerDashboard() {
               </div>
 
               {/* Shift Information */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <CalendarOutlined className="text-blue-600" />
@@ -1064,7 +1073,7 @@ export default function ManagerDashboard() {
               </div>
 
               {/* Additional Details */}
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <CalendarOutlined className="text-gray-500" />

@@ -311,6 +311,7 @@ export default function WorkerDashboard() {
           <div className="text-sm text-gray-500">{record.day}</div>
         </div>
       ),
+      responsive: ['md' as const],
     },
     {
       title: 'Time',
@@ -327,6 +328,7 @@ export default function WorkerDashboard() {
       dataIndex: 'location',
       key: 'location',
       render: (location: any) => <span className="text-gray-600">{location?.name || 'No location'}</span>,
+      responsive: ['lg' as const],
     },
     {
       title: 'Status',
@@ -354,10 +356,12 @@ export default function WorkerDashboard() {
             e.stopPropagation();
             handleEditNote(record);
           }}
+          className="px-2 py-1 text-xs"
         >
           Edit Note
         </Button>
       ),
+      responsive: ['md' as const],
     },
   ];
 
@@ -447,22 +451,19 @@ export default function WorkerDashboard() {
   return (
     <RoleGuard requiredRole={ROLES.WORKER}>
       <DashboardLayout>
-        <div className="px-6 py-8 sm:px-8 max-w-8xl mx-auto">
-
-
-  
-          <div className="flex gap-4 h-full mb-6">
-  
-                          {activeShift ? (
-              <div className="flex-1 bg-white p-6 rounded-3xl">
+        <div className="px-3 py-4 sm:px-6 lg:px-8 max-w-8xl mx-auto dashboard-content">
+          {/* Main Content - Responsive Grid Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mb-6">
+            {/* Active Shift Section */}
+            {activeShift ? (
+              <div className="lg:col-span-1 bg-white p-4 sm:p-6 rounded-2xl lg:rounded-3xl shadow-sm border border-gray-100">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-gray-900">Current Work Location</h2>
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900">Current Work Location</h2>
                 </div>
 
-  
-                <div className="flex gap-4 mb-4">
-                  
-                  <div className="flex-1 bg-gray-50 rounded-lg p-4 rounded-xl">
+                {/* Location Info Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
+                  <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
                     <div className="space-y-2">
                       <div className="text-sm font-medium text-gray-900">
                         {activeShift.location ? activeShift.location.name : 'No Location Set'}
@@ -479,20 +480,19 @@ export default function WorkerDashboard() {
                     </div>
                   </div>
 
-                  
-                  <div className="flex-1 bg-green-50 rounded-lg p-4 rounded-xl">
+                  <div className="bg-green-50 rounded-lg p-3 sm:p-4">
                     <div className="space-y-3">
-                      <div className="flex items-center space-x-2 flex-wrap">
-                        <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center">
-                          <ClockCircleOutlined className="text-white text-sm" />
+                      <div className="flex items-center space-x-2">
+                        <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-400 rounded-full flex items-center justify-center">
+                          <ClockCircleOutlined className="text-white text-xs sm:text-sm" />
                         </div>
-                        <span className="text-xs font-medium text-green-800">Currently Clocked In</span>
+                        <span className="text-xs sm:text-sm font-medium text-green-800">Currently Clocked In</span>
                       </div>
-                      <div className="flex items-center space-x-2 flex-wrap ">
-                        <div className="w-6 h-6 bg-green-400 rounded-full flex items-center justify-center">
-                          <EnvironmentOutlined className="text-white text-sm" />
+                      <div className="flex items-center space-x-2">
+                        <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-400 rounded-full flex items-center justify-center">
+                          <EnvironmentOutlined className="text-white text-xs sm:text-sm" />
                         </div>
-                        <span className="text-xs font-medium text-green-800">
+                        <span className="text-xs sm:text-sm font-medium text-green-800">
                           Working at {activeShift.location ? activeShift.location.name : 'Unknown location'}
                         </span>
                       </div>
@@ -500,24 +500,24 @@ export default function WorkerDashboard() {
                   </div>
                 </div>
 
-                
+                {/* Staff Information */}
                 <div className="mb-4">
                   <h3 className="text-sm font-medium text-gray-700 mb-2">Staff Information</h3>
-                  <h1 className="text-2xl font-bold text-gray-900">ACTIVE SHIFT</h1>
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">ACTIVE SHIFT</h1>
                 </div>
 
-                
-                <div className="bg-gray-800 p-5 text-white rounded-3xl mb-4">
+                {/* Status Card */}
+                <div className="bg-gray-800 p-4 sm:p-5 text-white rounded-2xl lg:rounded-3xl mb-4">
                   <div className="mb-3">
                     <div className="text-xs text-gray-300 mb-1">Current Status</div>
-                    <div className="text-lg font-bold text-white">ACTIVE SHIFT</div>
+                    <div className="text-base sm:text-lg font-bold text-white">ACTIVE SHIFT</div>
                   </div>
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
-                          <ClockCircleOutlined className="text-white text-sm" />
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                          <ClockCircleOutlined className="text-white text-xs sm:text-sm" />
                         </div>
                         <div>
                           <div className="text-sm font-medium text-orange-400">Started</div>
@@ -529,12 +529,12 @@ export default function WorkerDashboard() {
                           </div>
                         </div>
                       </div>
-                      <div className="text-lg font-bold text-white">🟢</div>
+                      <div className="text-base sm:text-lg font-bold text-white">🟢</div>
                     </div>
 
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                        <EnvironmentOutlined className="text-white text-sm" />
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-500 rounded-full flex items-center justify-center">
+                        <EnvironmentOutlined className="text-white text-xs sm:text-sm" />
                       </div>
                       <div className="text-sm text-white">
                         {activeShift.location ?
@@ -546,41 +546,37 @@ export default function WorkerDashboard() {
                   </div>
                 </div>
 
-                
+                {/* End Shift Button */}
                 <Button
                   type="primary"
                   size="large"
                   icon={<PauseCircleOutlined />}
                   onClick={handleEndShift}
                   loading={isEndingShift}
-                  className="w-full bg-red-500 border-red-500 hover:bg-red-600 text-white font-medium"
+                  className="w-full bg-red-500 border-red-500 hover:bg-red-600 text-white font-medium text-sm sm:text-base"
                   block
                 >
                   End Current Shift
                 </Button>
               </div>
-                          ) : (
-              <div className="flex-1 bg-gradient-to-br from-white to-gray-50 p-8 rounded-3xl flex flex-col justify-center shadow-sm border border-gray-100">
+            ) : (
+              /* Start Shift Section */
+              <div className="lg:col-span-1 bg-gradient-to-br from-white to-gray-50 p-6 sm:p-8 rounded-2xl lg:rounded-3xl flex flex-col justify-center shadow-sm border border-gray-100">
                 <div className="text-center max-w-md mx-auto">
-
                   <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Ready to Start?</h2>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Ready to Start?</h2>
                     <p className="text-gray-600 text-sm">Begin your shift and start tracking your work time</p>
                   </div>
 
-                  
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 mb-6 border border-blue-100">
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 sm:p-8 mb-6 border border-blue-100">
                     <div className="relative">
-
-                      <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                        <ClockCircleOutlined className="text-white text-3xl" style={{ fontSize: '32px' }} />
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <ClockCircleOutlined className="text-white text-2xl sm:text-3xl" />
                       </div>
 
-
-                      <div className="absolute top-2 right-8 w-3 h-3 bg-blue-300 rounded-full opacity-60"></div>
-                      <div className="absolute bottom-2 left-8 w-2 h-2 bg-indigo-300 rounded-full opacity-40"></div>
+                      <div className="absolute top-2 right-6 sm:right-8 w-2 h-2 sm:w-3 sm:h-3 bg-blue-300 rounded-full opacity-60"></div>
+                      <div className="absolute bottom-2 left-6 sm:left-8 w-2 h-2 bg-indigo-300 rounded-full opacity-40"></div>
                     </div>
-
 
                     <div className="text-center">
                       <p className="text-gray-700 font-medium mb-1">No Active Shift</p>
@@ -588,22 +584,20 @@ export default function WorkerDashboard() {
                     </div>
                   </div>
 
-                  
                   <Button
                     type="primary"
                     size="large"
-                    icon={<PlayCircleOutlined style={{ fontSize: '18px' }} />}
+                    icon={<PlayCircleOutlined className="text-sm sm:text-base" />}
                     onClick={() => setIsStartShiftModalVisible(true)}
                     loading={isStartingShift}
-                    className="w-full h-12 bg-gradient-to-r from-green-500 to-emerald-600 border-0 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
+                    className="w-full h-10 sm:h-12 bg-gradient-to-r from-green-500 to-emerald-600 border-0 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 text-sm sm:text-base"
                     block
                   >
                     {isStartingShift ? 'Starting Shift...' : 'Start New Shift'}
                   </Button>
 
-                  
                   <div className="mt-6 pt-4 border-t border-gray-200">
-                    <div className="flex justify-center items-center text-xs text-gray-500 space-x-4">
+                    <div className="flex flex-col sm:flex-row justify-center items-center text-xs text-gray-500 space-y-2 sm:space-y-0 sm:space-x-4">
                       <span className="flex items-center">
                         <CalendarOutlined className="mr-1" />
                         Today
@@ -622,16 +616,16 @@ export default function WorkerDashboard() {
               </div>
             )}
 
-            
-            <div className="flex-1 bg-white rounded-lg p-4">
+            {/* Map Section */}
+            <div className="lg:col-span-1 bg-white rounded-lg p-3 sm:p-4 shadow-sm border border-gray-200">
               <div className="mb-4">
                 <div className="flex items-center space-x-2 mb-2">
-                  <EnvironmentOutlined className="text-blue-600 text-xl" style={{ fontSize: '28px', color: 'black' }} />
-                  <h2 className="text-lg font-semibold text-gray-900">
+                  <EnvironmentOutlined className="text-blue-600 text-lg sm:text-xl" />
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900">
                     {activeShift && activeShift.location ? 'Current Work Location' : 'Location Map'}
                   </h2>
                   {isTracking && (
-                    <Tag color="orange" className="ml-2">
+                    <Tag color="orange" className="ml-2 text-xs">
                       <span className="flex items-center">
                         <div className="w-2 h-2 bg-orange-500 rounded-full mr-1 animate-pulse"></div>
                         Test Mode
@@ -645,20 +639,20 @@ export default function WorkerDashboard() {
                     `Real-time location tracking and monitoring${isTracking ? ' - Test simulation active' : ''}`
                   }
                   {isTracking && (
-                    <span className="block mt-1 text-orange-600 font-medium">
+                    <span className="block mt-1 text-orange-600 font-medium text-xs">
                       🧪 Using simulated coordinates for testing
                     </span>
                   )}
                   
-                          {/* Current Test Location Info */}
-        {isTracking && simulationIndex !== null && (
-          <div className="mt-2 text-xs text-gray-600">
-            🧪 Simulation Mode: Active
-            <span className="ml-2 text-xs">
-              (Teleporting in/out of the {activeShift?.location?.radius || 3}km radius)
-            </span>
-          </div>
-        )}
+                  {/* Current Test Location Info */}
+                  {isTracking && simulationIndex !== null && (
+                    <div className="mt-2 text-xs text-gray-600">
+                      🧪 Simulation Mode: Active
+                      <span className="ml-2 text-xs">
+                        (Teleporting in/out of the {activeShift?.location?.radius || 3}km radius)
+                      </span>
+                    </div>
+                  )}
                   
                   {/* Initial Real Location Status */}
                   {!isTracking && userCurrentLocation && (
@@ -670,13 +664,13 @@ export default function WorkerDashboard() {
                     </div>
                   )}
                   
-                  <div className="mt-2 flex gap-2">
+                  <div className="mt-2 flex flex-wrap gap-2">
                     {!isTracking && (
                       <Button 
                         size="small" 
                         type="primary"
                         onClick={startSimulation}
-                        className="bg-green-500 border-green-500"
+                        className="bg-green-500 border-green-500 text-xs"
                       >
                         🧪 Start Test Simulation
                       </Button>
@@ -687,7 +681,7 @@ export default function WorkerDashboard() {
                         type="primary" 
                         danger
                         onClick={stopSimulation}
-                        className="bg-red-500 border-red-500"
+                        className="bg-red-500 border-red-500 text-xs"
                       >
                         ⏹️ Stop Simulation
                       </Button>
@@ -722,7 +716,7 @@ export default function WorkerDashboard() {
                       const isInside = distanceInMeters <= radiusInMeters;
                       
                       return (
-                        <div className="flex items-center space-x-2">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
                           <Tag 
                             color={isInside ? 'green' : 'red'} 
                             className="text-xs"
@@ -750,7 +744,7 @@ export default function WorkerDashboard() {
                   </div>
                 )}
               </div>
-              <div className="w-full h-full">
+              <div className="w-full h-64 sm:h-80 lg:h-full">
                 <LocationMap 
                   currentLocation={activeShift && activeShift.location ? 
                     {
@@ -770,72 +764,64 @@ export default function WorkerDashboard() {
               </div>
             </div>
 
-
-            <div className="flex-1 bg-white rounded-lg p-4">
+            {/* Statistics Section */}
+            <div className="lg:col-span-1 bg-white rounded-lg p-3 sm:p-4 shadow-sm border border-gray-200">
               <div className="mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">
                   My Statistics - {selectedMonth === 'current' ? 'Current Month' : 'Previous Month'}
                 </h2>
                 <p className="text-sm text-gray-600">Your work summary</p>
               </div>
 
-              <div className="space-y-4">
-  
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                        <CalendarOutlined className="text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-blue-900">Total Shifts</p>
-                        <p className="text-lg font-bold text-blue-900">{totalShifts}</p>
-                      </div>
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                {/* Total Shifts */}
+                <div className="bg-blue-50 rounded-lg p-3 sm:p-4 border border-blue-100">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                      <CalendarOutlined className="text-white text-sm sm:text-base" />
+                    </div>
+                    <div>
+                      <p className="text-xs sm:text-sm font-medium text-blue-900">Total Shifts</p>
+                      <p className="text-lg sm:text-lg font-bold text-blue-900">{totalShifts}</p>
                     </div>
                   </div>
                 </div>
 
-  
-                <div className="bg-green-50 rounded-lg p-4 border border-green-100">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                        <ClockCircleOutlined className="text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-green-900">Total Hours</p>
-                        <p className="text-lg font-bold text-green-900">{totalHours.toFixed(1)}h</p>
-                      </div>
+                {/* Total Hours */}
+                <div className="bg-green-50 rounded-lg p-3 sm:p-4 border border-green-100">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500 rounded-full flex items-center justify-center">
+                      <ClockCircleOutlined className="text-white text-sm sm:text-base" />
+                    </div>
+                    <div>
+                      <p className="text-xs sm:text-sm font-medium text-green-900">Total Hours</p>
+                      <p className="text-lg sm:text-lg font-bold text-green-900">{totalHours.toFixed(1)}h</p>
                     </div>
                   </div>
                 </div>
 
-  
-                <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-100">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
-                        <CheckCircleOutlined className="text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-yellow-900">Completed</p>
-                        <p className="text-lg font-bold text-yellow-900">{completedShifts}</p>
-                      </div>
+                {/* Completed Shifts */}
+                <div className="bg-yellow-50 rounded-lg p-3 sm:p-4 border border-yellow-100">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-500 rounded-full flex items-center justify-center">
+                      <CheckCircleOutlined className="text-white text-sm sm:text-base" />
+                    </div>
+                    <div>
+                      <p className="text-xs sm:text-sm font-medium text-yellow-900">Completed</p>
+                      <p className="text-lg sm:text-lg font-bold text-yellow-900">{completedShifts}</p>
                     </div>
                   </div>
                 </div>
 
-  
-                <div className="bg-purple-50 rounded-lg p-4 border border-purple-100">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
-                        <SaveOutlined className="text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-purple-900">Avg Hours</p>
-                        <p className="text-lg font-bold text-purple-900">{avgHoursPerShift}h</p>
-                      </div>
+                {/* Average Hours */}
+                <div className="bg-purple-50 rounded-lg p-3 sm:p-4 border border-purple-100">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-500 rounded-full flex items-center justify-center">
+                      <SaveOutlined className="text-white text-sm sm:text-base" />
+                    </div>
+                    <div>
+                      <p className="text-xs sm:text-sm font-medium text-purple-900">Avg Hours</p>
+                      <p className="text-lg sm:text-lg font-bold text-purple-900">{avgHoursPerShift}h</p>
                     </div>
                   </div>
                 </div>
@@ -843,22 +829,22 @@ export default function WorkerDashboard() {
             </div>
           </div>
 
-          
-          <div className="flex gap-4 h-full w-full gap-2 mt-6 flex-col ">
-            
-            <div className="w-full flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          {/* Charts and Table Row - Full Width Stacked */}
+          <div className="space-y-6 max-w-7xl mx-auto">
+            {/* Chart Section - Full Width */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4">
               <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2">
                   <div className="flex items-center space-x-2">
-                    <BarChartOutlined className="text-blue-600 text-xl" style={{ fontSize: '28px', color: 'black' }} />
-                    <h2 className="text-lg font-semibold text-gray-900">
+                    <BarChartOutlined className="text-blue-600 text-lg sm:text-xl" />
+                    <h2 className="text-base sm:text-lg font-semibold text-gray-900">
                       My Work Hours Trend - {selectedMonth === 'current' ? 'Current Month' : 'Previous Month'}
                     </h2>
                   </div>
                   <Select
                     value={selectedMonth}
                     onChange={setSelectedMonth}
-                    style={{ width: 150 }}
+                    style={{ width: '100%', maxWidth: '150px' }}
                     options={[
                       { value: 'current', label: 'Current Month' },
                       { value: 'previous', label: 'Previous Month' }
@@ -867,7 +853,7 @@ export default function WorkerDashboard() {
                 </div>
                 <p className="text-sm text-gray-600">Track your daily work hours over time</p>
               </div>
-              <div className="h-full">
+              <div className="h-64 sm:h-80 xl:h-96 chart-container chart-responsive">
                 <Chart
                   options={{
                     chart: {
@@ -914,7 +900,7 @@ export default function WorkerDashboard() {
                       labels: {
                         style: {
                           colors: '#6B7280',
-                          fontSize: '12px'
+                          fontSize: '10px'
                         }
                       }
                     },
@@ -961,42 +947,48 @@ export default function WorkerDashboard() {
                   }}
                   series={series}
                   type="area"
-                  height={250}
+                  height="100%"
                 />
               </div>
             </div>
 
-            
-            <div className='w-full flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-4'>
+            {/* Table Section - Full Width */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4">
               <div className="mb-4">
                 <div className="flex items-center space-x-2 mb-2">
-                  <TableOutlined className="text-blue-600 text-xl" style={{ fontSize: '28px', color: 'black' }} />
-                  <h2 className="text-lg font-semibold text-gray-900">My Shifts</h2>
+                  <TableOutlined className="text-blue-600 text-lg sm:text-xl" />
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900">My Shifts</h2>
                 </div>
                 <p className="text-sm text-gray-600">Track your individual shifts</p>
               </div>
-              <Table
-                columns={shiftTableColumns}
-                dataSource={userShifts}
-                rowKey="id"
-                onRow={(record) => ({
-                  onClick: () => handleRowClick(record),
-                  className: 'cursor-pointer hover:bg-blue-50 transition-colors duration-200'
-                })}
-                pagination={{
-                  pageSize: 7,
-                  showSizeChanger: true,
-                  showQuickJumper: true,
-                  showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-                }}
-                scroll={{ x: 600 }}
-                size="small"
-              />
+              <div className="overflow-x-auto table-container table-responsive">
+                <Table
+                  columns={shiftTableColumns}
+                  dataSource={userShifts}
+                  rowKey="id"
+                  onRow={(record) => ({
+                    onClick: () => handleRowClick(record),
+                    className: 'cursor-pointer hover:bg-blue-50 transition-colors duration-200'
+                  })}
+                  pagination={{
+                    pageSize: 5,
+                    showSizeChanger: false,
+                    showQuickJumper: false,
+                    showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`,
+                    size: 'small',
+                    responsive: true,
+                  }}
+                  scroll={{ x: 'max-content' }}
+                  size="small"
+                  className="responsive-table"
+                  style={{ maxWidth: '100%' }}
+                />
+              </div>
             </div>
           </div>
         </div>
 
-
+        {/* Modals */}
         <Modal
           title="Start New Shift"
           open={isStartShiftModalVisible}
@@ -1008,6 +1000,8 @@ export default function WorkerDashboard() {
           okText="Start Shift"
           cancelText="Cancel"
           confirmLoading={isStartingShift}
+          width="90%"
+          style={{ maxWidth: '500px' }}
         >
           <Form form={startShiftForm} layout="vertical">
             <Form.Item
@@ -1035,7 +1029,6 @@ export default function WorkerDashboard() {
           </Form>
         </Modal>
 
-
         <Modal
           title="Edit Shift Note"
           open={isNoteModalVisible}
@@ -1046,6 +1039,8 @@ export default function WorkerDashboard() {
           }}
           okText="Update Note"
           cancelText="Cancel"
+          width="90%"
+          style={{ maxWidth: '500px' }}
         >
           <Form form={noteForm} layout="vertical">
             <Form.Item
@@ -1059,7 +1054,6 @@ export default function WorkerDashboard() {
             </Form.Item>
           </Form>
         </Modal>
-
 
         <Modal
           title={
@@ -1075,12 +1069,12 @@ export default function WorkerDashboard() {
               Close
             </Button>
           ]}
-          width={600}
+          width="90%"
+          style={{ maxWidth: '600px' }}
         >
           {selectedShift && (
             <div className="space-y-6">
-
-              <div className="flex items-center space-x-4 pb-4 border-b border-gray-200">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 pb-4 border-b border-gray-200">
                 <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
                   <CalendarOutlined className="text-white text-2xl" />
                 </div>
@@ -1099,8 +1093,7 @@ export default function WorkerDashboard() {
                 </div>
               </div>
 
-
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <ClockCircleOutlined className="text-blue-600" />
@@ -1133,7 +1126,6 @@ export default function WorkerDashboard() {
                 </div>
               </div>
 
-
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <MailOutlined className="text-blue-600" />
@@ -1149,8 +1141,7 @@ export default function WorkerDashboard() {
           )}
         </Modal>
 
-
-        {/* Location Notifications - Show when user enters/exits work areas */}
+        {/* Location Notifications */}
         <LocationNotifications 
           userLocation={userCurrentLocation ? {
             latitude: userCurrentLocation.latitude,
@@ -1164,7 +1155,6 @@ export default function WorkerDashboard() {
             name: locations[0].name
           } : undefined}
         />
-
       </DashboardLayout>
     </RoleGuard>
   );
