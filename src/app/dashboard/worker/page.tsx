@@ -321,11 +321,47 @@ export default function WorkerDashboard() {
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
+    
+    // Check if it's a simple time string (HH:MM format)
+    if (dateString.length === 5 && dateString.includes(':')) {
+      // Simple time format like "09:00" - return as is
+      return dateString;
+    }
+    
+    // Full ISO date-time format - parse and format
+    if (isNaN(date.getTime())) {
+      return 'N/A';
+    }
+    
     return date.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true
     });
+  };
+
+  // Calculate duration between start and end time
+  const calculateDuration = (startTime: string, endTime?: string) => {
+    if (!startTime || !endTime) {
+      return 'N/A';
+    }
+    
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    
+    // Check if both dates are valid
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return 'N/A';
+    }
+    
+    const diffInMinutes = Math.floor((end.getTime() - start.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes}m`; // Return minutes for shifts less than an hour
+    } else {
+      const hours = (diffInMinutes / 60).toFixed(1);
+      return `${hours}h`;
+    }
   };
 
   // const getTimeAgo = (dateString: string) => {
@@ -375,7 +411,9 @@ export default function WorkerDashboard() {
       render: (record: { startTime: string; endTime?: string; totalHours?: number }) => (
         <div>
           <div className="text-gray-900">{formatTime(record.startTime)} - {record.endTime ? formatTime(record.endTime) : 'Ongoing'}</div>
-          <div className="text-sm text-gray-500">{record.totalHours || 0}h</div>
+          <div className="text-sm text-gray-500">
+            {record.totalHours ? `${record.totalHours}h` : calculateDuration(record.startTime, record.endTime)}
+          </div>
         </div>
       ),
     },
@@ -1163,13 +1201,18 @@ export default function WorkerDashboard() {
                   <p className="text-gray-600 ml-6">
                     {formatTime(selectedShift.startTime)} - {selectedShift.endTime ? formatTime(selectedShift.endTime) : 'Ongoing'}
                   </p>
+                  <p className="text-gray-500 text-sm ml-6">
+                    Duration: {selectedShift.totalHours ? `${selectedShift.totalHours}h` : calculateDuration(selectedShift.startTime, selectedShift.endTime)}
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <SaveOutlined className="text-blue-600" />
                     <span className="font-medium">Total Hours:</span>
                   </div>
-                  <p className="text-gray-600 ml-6">{selectedShift.totalHours || 0} hours</p>
+                  <p className="text-gray-600 ml-6">
+                    {selectedShift.totalHours ? `${selectedShift.totalHours}h` : calculateDuration(selectedShift.startTime, selectedShift.endTime)}
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">

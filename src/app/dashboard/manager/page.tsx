@@ -265,7 +265,14 @@ export default function ManagerDashboard() {
 
   const formatTime = (dateString: string | unknown) => {
     if (!dateString || typeof dateString !== 'string') return 'N/A';
+    console.log(dateString, 'dateString');
+
+    if (dateString.length === 5 && dateString.includes(':')) {
+
+      return dateString;
+    }
     
+
     const date = new Date(dateString);
     return date.toLocaleTimeString('en-US', {
       hour: '2-digit',
@@ -294,13 +301,38 @@ export default function ManagerDashboard() {
 
   const formatDate = (dateString: string | unknown) => {
     if (!dateString || typeof dateString !== 'string') return 'N/A';
-    
+
+    console.log(dateString, 'dateString1');
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  // Calculate duration from startTime and endTime when totalHours is 0
+  const calculateDuration = (startTime: string | unknown, endTime: string | unknown) => {
+    if (!startTime || !endTime || typeof startTime !== 'string' || typeof endTime !== 'string') {
+      return 'N/A';
+    }
+    
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    
+    // Check if both dates are valid
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return 'N/A';
+    }
+    
+    const diffInMinutes = Math.floor((end.getTime() - start.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes}m`; // Return minutes for shifts less than an hour
+    } else {
+      const hours = (diffInMinutes / 60).toFixed(1);
+      return `${hours}h`;
+    }
   };
 
   const getStatusIcon = (user: Record<string, unknown>) => {
@@ -360,7 +392,9 @@ export default function ManagerDashboard() {
       render: (record: { startTime: string; endTime?: string; totalHours?: number }) => (
         <div>
           <div className="text-sm">{formatTime(record.startTime)} - {record.endTime ? formatTime(record.endTime) : 'Ongoing'}</div>
-          <div className="text-xs text-gray-500">{record.totalHours ? `${record.totalHours}h` : '0h'}</div>
+          <div className="text-xs text-gray-500">
+            {record.totalHours ? `${record.totalHours}h` : calculateDuration(record.startTime, record.endTime)}
+          </div>
         </div>
       ),
     },
