@@ -10,7 +10,7 @@ const WORKER_COORDS = [
   { lat: 40.8501, lng: -74.0033, name: 'Far from Mount Sinai', expected: 'OUTSIDE' }, // Outside the 3km radius
 ];
 
-export const useLocationTracking = (geofences: any[]) => {
+export const useLocationTracking = (geofences: Array<{ latitude: number; longitude: number; radius: number }>) => {
   const [currentLocation, setCurrentLocation] = useState<{ latitude: number; longitude: number; accuracy?: number } | null>(null);
   const [isTracking, setIsTracking] = useState<boolean>(false);
   const [simulationIndex, setSimulationIndex] = useState<number | null>(null);
@@ -21,30 +21,34 @@ export const useLocationTracking = (geofences: any[]) => {
 
   // Get real GPS location once when component mounts
   useEffect(() => {
-             if (!hasInitialLocation && navigator.geolocation) {
-           
-           navigator.geolocation.getCurrentPosition(
-             (position) => {
-               const { latitude, longitude, accuracy } = position.coords;
-               
-               setCurrentLocation({ latitude, longitude, accuracy });
-               setHasInitialLocation(true);
-             },
-             (error) => {
-               
-               setCurrentLocation({ latitude: 40.7901, longitude: -73.9533, accuracy: 100 });
-               setHasInitialLocation(true);
-             },
+    // Check if we're in the browser before accessing navigator
+    if (typeof window !== 'undefined' && !hasInitialLocation && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude, accuracy } = position.coords;
+          
+          setCurrentLocation({ latitude, longitude, accuracy });
+          setHasInitialLocation(true);
+        },
+        (err) => {
+          // Fallback to default location if GPS fails
+          setCurrentLocation({ latitude: 40.7901, longitude: -73.9533, accuracy: 100 });
+          setHasInitialLocation(true);
+        },
         {
           enableHighAccuracy: true,
           timeout: 10000,
           maximumAge: 60000
         }
       );
+    } else if (typeof window === 'undefined') {
+      // Server-side rendering - set default location
+      setCurrentLocation({ latitude: 40.7901, longitude: -73.9533, accuracy: 100 });
+      setHasInitialLocation(true);
     }
   }, [hasInitialLocation]);
 
-  const simulateWorkerPosition = useCallback((coord: any, index: number) => {
+  const simulateWorkerPosition = useCallback((coord: { lat: number; lng: number }, index: number) => {
     
     setCurrentLocation({
       latitude: coord.lat,
@@ -55,18 +59,14 @@ export const useLocationTracking = (geofences: any[]) => {
     setSimulationIndex(index);
     if (geofences.length > 0) {
       const geofence = geofences[0];
-      const distance = calculateDistance(
-        coord.lat,
-        coord.lng,
-        geofence.latitude,
-        geofence.longitude
-      );
-      
-      const isInside = distance <= geofence.radius * 1000;
+      // Distance calculation removed as it's not being used
     }
   }, [geofences]);
 
   const startSimulation = useCallback(() => {
+    // Only run simulation in browser
+    if (typeof window === 'undefined') return;
+    
     if (simulationIntervalRef.current) {
       clearInterval(simulationIntervalRef.current);
     }
@@ -85,9 +85,12 @@ export const useLocationTracking = (geofences: any[]) => {
       const nextCoord = WORKER_COORDS[simulationIndexRef.current];
       simulateWorkerPosition(nextCoord, simulationIndexRef.current);
     }, 10000); 
-  }, [simulateWorkerPosition, geofences]);
+  }, [simulateWorkerPosition]);
 
   const stopSimulation = useCallback(() => {
+    // Only run simulation in browser
+    if (typeof window === 'undefined') return;
+    
     if (simulationIntervalRef.current) {
       clearInterval(simulationIntervalRef.current);
       simulationIntervalRef.current = null;
@@ -100,7 +103,8 @@ export const useLocationTracking = (geofences: any[]) => {
   
   useEffect(() => {
     return () => {
-      if (simulationIntervalRef.current) {
+      // Only cleanup in browser
+      if (typeof window !== 'undefined' && simulationIntervalRef.current) {
         clearInterval(simulationIntervalRef.current);
       }
     };

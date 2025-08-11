@@ -2,16 +2,29 @@
 
 import React, { createContext, useContext } from 'react';
 import { useAuthUser } from '../hooks/useAuthUser';
-import { createUserWithRole, ROLES } from '../utils/roleManager';
+import { ROLES } from '../utils/roleManager';
+
+interface DatabaseUser {
+  id: string;
+  name: string;
+  email: string;
+  profilePicUrl?: string | null;
+  role: 'CAREWORKER' | 'MANAGER';
+  averageHours?: number | null;
+  totalShifts?: number | null;
+  lastClockIn?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 interface UserContextType {
-  user: any;
+  user: Record<string, unknown> | null;
   isLoading: boolean;
   isManager: boolean;
   userRole: string;
   mounted: boolean;
-  userWithRole: any;
-  dbUser: any;
+  userWithRole: Record<string, unknown> | null;
+  dbUser: DatabaseUser | null;
   refreshUser: () => void;
   error: string | null;
 }

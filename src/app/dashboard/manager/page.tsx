@@ -1,19 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '../../components/DashboardLayout';
 import RoleGuard from '../../components/RoleGuard';
 import LocationMap from '../../components/Map';
-import { Collapse, Avatar, Button, Space, Tag, Tooltip, Dropdown, Modal, Form, Input, Table, message } from 'antd';
+import { Collapse, Avatar, Button, Space, Tag, Dropdown, Modal, Form, Input, Table, message } from 'antd';
 import {
   UserOutlined,
   ClockCircleOutlined,
   CalendarOutlined,
   MailOutlined,
-  PhoneOutlined,
   EnvironmentOutlined,
-  CheckCircleOutlined,
   CloseCircleOutlined,
   PlayCircleOutlined,
   PauseCircleOutlined,
@@ -24,7 +22,7 @@ import {
   BarChartOutlined,
   TableOutlined
 } from '@ant-design/icons';
-import { locationData } from '@/app/api/Data/dummy';
+// import { locationData } from '@/app/api/Data/dummy';
 import { useUserContext } from '../../contexts/UserContext';
 import { ROLES } from '../../utils/roleManager';
 import dynamic from 'next/dynamic';
@@ -35,22 +33,84 @@ const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 export default function ManagerDashboard() {
   const { user, isLoading, isManager, mounted } = useUserContext();
   const router = useRouter();
-  const [currentLocation, setCurrentLocation] = useState<any>(null);
+  const [currentLocation, setCurrentLocation] = useState<{
+    id: string;
+    name: string;
+    latitude: number;
+    longitude: number;
+    radius: number;
+    startTime: string;
+    endTime: string;
+  } | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
-  const [selectedShift, setSelectedShift] = useState<any>(null);
+  const [selectedShift, setSelectedShift] = useState<{
+    id: string;
+    user: {
+      name: string;
+      email: string;
+      profilePicUrl?: string;
+    };
+    date: string;
+    day: string;
+    startTime: string;
+    endTime?: string;
+    totalHours?: number;
+    location: {
+      name: string;
+      latitude: number;
+      longitude: number;
+    };
+    status: string;
+    note?: string;
+  } | null>(null);
   const [isShiftDetailsVisible, setIsShiftDetailsVisible] = useState(false);
   const [isCreatingLocation, setIsCreatingLocation] = useState(false);
-  const [locations, setLocations] = useState<any[]>([]);
-  
- 
-  const [allUsers, setAllUsers] = useState<any[]>([]);
-  const [allShifts, setAllShifts] = useState<any[]>([]);
+  const [locations, setLocations] = useState<Array<{
+    id: string;
+    name: string;
+    latitude: number;
+    longitude: number;
+    radius: number;
+    startTime: string;
+    endTime: string;
+  }>>([]);
+  const [allUsers, setAllUsers] = useState<Array<{
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    profilePicUrl?: string;
+    lastClockIn?: string;
+    totalShifts?: number;
+    averageHours?: number;
+    createdAt: string;
+  }>>([]);
+  const [allShifts, setAllShifts] = useState<Array<{
+    id: string;
+    user: {
+      name: string;
+      email: string;
+      profilePicUrl?: string;
+    };
+    date: string;
+    day: string;
+    startTime: string;
+    endTime?: string;
+    totalHours?: number;
+    location: {
+      name: string;
+      latitude: number;
+      longitude: number;
+    };
+    status: string;
+    note?: string;
+  }>>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dataLoaded, setDataLoaded] = useState(false);
 
-  const fetchLocations = async () => {
+  const fetchLocations = useCallback(async () => {
     try {
       const response = await fetch('/api/locations');
       if (response.ok) {
@@ -63,9 +123,9 @@ export default function ManagerDashboard() {
     } catch (error) {
       console.error('Error fetching locations:', error);
     }
-  };
+  }, []);
 
-  const fetchAllUsers = async () => {
+  const fetchAllUsers = useCallback(async () => {
     try {
       setError(null);
       const response = await fetch('/api/users');
@@ -80,9 +140,9 @@ export default function ManagerDashboard() {
       console.error('Error fetching users:', error);
       setError('Failed to connect to server. Please try again.');
     }
-  };
+  }, []);
 
-  const fetchAllShifts = async () => {
+  const fetchAllShifts = useCallback(async () => {
     try {
       setError(null);
       const response = await fetch('/api/shifts/all');
@@ -97,9 +157,9 @@ export default function ManagerDashboard() {
       console.error('Error fetching shifts:', error);
       setError('Failed to connect to server. Please try again.');
     }
-  };
+  }, []);
 
-  const fetchAllData = async () => {
+  const fetchAllData = useCallback(async () => {
     setLoading(true);
     setDataLoaded(false);
     try {
@@ -114,7 +174,7 @@ export default function ManagerDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchLocations, fetchAllUsers, fetchAllShifts]);
 
   useEffect(() => {
     if (mounted && user && !isLoading) {
@@ -130,7 +190,7 @@ export default function ManagerDashboard() {
     if (mounted && user && isManager) {
       fetchAllData();
     }
-  }, [mounted, user, isManager]);
+  }, [mounted, user, isManager, fetchAllData]);
 
   const handleModalOk = async () => {
     try {
@@ -174,7 +234,26 @@ export default function ManagerDashboard() {
     form.resetFields();
   };
 
-  const handleRowClick = (record: any) => {
+  const handleRowClick = (record: {
+    id: string;
+    user: {
+      name: string;
+      email: string;
+      profilePicUrl?: string;
+    };
+    date: string;
+    day: string;
+    startTime: string;
+    endTime?: string;
+    totalHours?: number;
+    location: {
+      name: string;
+      latitude: number;
+      longitude: number;
+    };
+    status: string;
+    note?: string;
+  }) => {
     setSelectedShift(record);
     setIsShiftDetailsVisible(true);
   };
@@ -184,7 +263,9 @@ export default function ManagerDashboard() {
     setSelectedShift(null);
   };
 
-  const formatTime = (dateString: string) => {
+  const formatTime = (dateString: string | unknown) => {
+    if (!dateString || typeof dateString !== 'string') return 'N/A';
+    
     const date = new Date(dateString);
     return date.toLocaleTimeString('en-US', {
       hour: '2-digit',
@@ -193,7 +274,9 @@ export default function ManagerDashboard() {
     });
   };
 
-  const getTimeAgo = (dateString: string) => {
+  const getTimeAgo = (dateString: string | unknown) => {
+    if (!dateString || typeof dateString !== 'string') return 'N/A';
+    
     const now = new Date();
     const date = new Date(dateString);
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
@@ -209,7 +292,9 @@ export default function ManagerDashboard() {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | unknown) => {
+    if (!dateString || typeof dateString !== 'string') return 'N/A';
+    
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -218,10 +303,10 @@ export default function ManagerDashboard() {
     });
   };
 
-  const getStatusIcon = (user: any) => {
+  const getStatusIcon = (user: Record<string, unknown>) => {
     if (!user.lastClockIn) return <CloseCircleOutlined className="text-red-500" />;
 
-    const lastClockIn = new Date(user.lastClockIn);
+    const lastClockIn = new Date(user.lastClockIn as string);
     const now = new Date();
     const diffInHours = (now.getTime() - lastClockIn.getTime()) / (1000 * 60 * 60);
 
@@ -230,10 +315,10 @@ export default function ManagerDashboard() {
     return <CloseCircleOutlined className="text-red-500" />;
   };
 
-  const getStatusText = (user: any) => {
+  const getStatusText = (user: Record<string, unknown>) => {
     if (!user.lastClockIn) return 'Inactive';
 
-    const lastClockIn = new Date(user.lastClockIn);
+    const lastClockIn = new Date(user.lastClockIn as string);
     const now = new Date();
     const diffInHours = (now.getTime() - lastClockIn.getTime()) / (1000 * 60 * 60);
 
@@ -248,12 +333,12 @@ export default function ManagerDashboard() {
       title: 'Worker',
       dataIndex: 'user',
       key: 'user',
-      render: (user: any) => (
+      render: (user: { name: string; email: string; profilePicUrl?: string }) => (
         <div className="flex items-center space-x-2">
           <Avatar size="small" src={user?.profilePicUrl} icon={<UserOutlined />} />
           <div className="flex flex-col ml-2">
             <div className="font-medium text-sm">{user?.name || 'Unknown'}</div>
-            <div className="text-xs text-gray-500">{user?.email}</div>
+            <div className="text-xs text-gray-500">{user?.email || 'No email'}</div>
           </div>
         </div>
       ),
@@ -261,21 +346,21 @@ export default function ManagerDashboard() {
     {
       title: 'Date & Day',
       key: 'date',
-      render: (record: any) => (
+      render: (record: { date: string; day: string }) => (
         <div>
           <div className="font-medium text-sm">{formatDate(record.date)}</div>
-          <div className="text-xs text-gray-500">{record.day}</div>
+          <div className="text-xs text-gray-500">{record.day || 'Unknown'}</div>
         </div>
       ),
-      responsive: ['md'],
+      responsive: ['md' as const],
     },
     {
       title: 'Time',
       key: 'time',
-      render: (record: any) => (
+      render: (record: { startTime: string; endTime?: string; totalHours?: number }) => (
         <div>
           <div className="text-sm">{formatTime(record.startTime)} - {record.endTime ? formatTime(record.endTime) : 'Ongoing'}</div>
-          <div className="text-xs text-gray-500">{record.totalHours}h</div>
+          <div className="text-xs text-gray-500">{record.totalHours ? `${record.totalHours}h` : '0h'}</div>
         </div>
       ),
     },
@@ -283,17 +368,15 @@ export default function ManagerDashboard() {
       title: 'Location',
       dataIndex: 'location',
       key: 'location',
-      render: (location: any) => (
+      render: (location: { name: string; latitude: number; longitude: number }) => (
         <div>
           <div className="font-medium text-sm">{location?.name || 'No location'}</div>
-          {location && (
-            <div className="text-xs text-gray-500">
-              {location.latitude.toFixed(2)}, {location.longitude.toFixed(2)}
-            </div>
-          )}
+          <div className="text-xs text-gray-500">
+            {location.latitude.toFixed(2)}, {location.longitude.toFixed(2)}
+          </div>
         </div>
       ),
-      responsive: ['lg'],
+      responsive: ['lg' as const],
     },
     {
       title: 'Status',
@@ -314,7 +397,7 @@ export default function ManagerDashboard() {
       title: 'Note',
       dataIndex: 'note',
       key: 'note',
-      render: (note: string) => (
+      render: (note?: string) => (
         <span className="text-xs text-gray-600">
           {note ? (note.length > 30 ? `${note.substring(0, 30)}...` : note) : '-'}
         </span>
@@ -324,9 +407,32 @@ export default function ManagerDashboard() {
 
   // Process data for chart - Time series by date
   const processChartData = () => {
+    if (!allShifts || allShifts.length === 0) {
+      return { 
+        categories: [], 
+        series: [
+          { name: 'Total Shifts', data: [] },
+          { name: 'Completed', data: [] },
+          { name: 'In Progress', data: [] },
+          { name: 'Missed', data: [] },
+          { name: 'Scheduled', data: [] }
+        ] 
+      };
+    }
+
+    type DateStats = {
+      total: number;
+      completed: number;
+      in_progress: number;
+      missed: number;
+      scheduled: number;
+    };
  
-    const shiftsByDate = allShifts.reduce((acc, shift) => {
-      const date = new Date(shift.date).toLocaleDateString();
+    const shiftsByDate = allShifts.reduce((acc: Record<string, DateStats>, shift) => {
+      const shiftDate = shift.date;
+      if (!shiftDate || typeof shiftDate !== 'string') return acc;
+      
+      const date = new Date(shiftDate).toLocaleDateString();
       if (!acc[date]) {
         acc[date] = {
           total: 0,
@@ -336,16 +442,20 @@ export default function ManagerDashboard() {
           scheduled: 0
         };
       }
-      acc[date].total += 1;
+      
+      // Ensure the date entry exists and update it
+      const dateEntry = acc[date];
+      if (dateEntry) {
+        dateEntry.total += 1;
 
-     
-      if (shift.status === 'COMPLETED') acc[date].completed += 1;
-      else if (shift.status === 'IN_PROGRESS') acc[date].in_progress += 1;
-      else if (shift.status === 'MISSED') acc[date].missed += 1;
-      else if (shift.status === 'SCHEDULED') acc[date].scheduled += 1;
+        if (shift.status === 'COMPLETED') dateEntry.completed += 1;
+        else if (shift.status === 'IN_PROGRESS') dateEntry.in_progress += 1;
+        else if (shift.status === 'MISSED') dateEntry.missed += 1;
+        else if (shift.status === 'SCHEDULED') dateEntry.scheduled += 1;
+      }
 
       return acc;
-    }, {} as Record<string, { total: number; completed: number; in_progress: number; missed: number; scheduled: number }>);
+    }, {} as Record<string, DateStats>);
 
     // Sort dates and create series
     const sortedDates = Object.keys(shiftsByDate).sort();
@@ -365,7 +475,7 @@ export default function ManagerDashboard() {
       },
       {
         name: 'Missed',
-        data: sortedDates.map(date => shiftsByDate[date].missed)
+      data: sortedDates.map(date => shiftsByDate[date].missed)
       },
       {
         name: 'Scheduled',
@@ -467,7 +577,8 @@ export default function ManagerDashboard() {
                   <p className="text-base sm:text-xl font-semibold text-gray-600">Total Hours</p>
                   <p className="text-xl sm:text-2xl font-bold text-gray-900">
                     {allShifts.reduce((total, shift) => {
-                      return total + shift.totalHours;
+                      const hours = typeof shift.totalHours === 'number' ? shift.totalHours : 0;
+                      return total + hours;
                     }, 0).toFixed(0)}
                   </p>
                   <p className="text-xs sm:text-sm text-gray-500 mt-1">
@@ -487,7 +598,8 @@ export default function ManagerDashboard() {
                   <p className="text-base sm:text-xl font-semibold text-gray-600">Avg. Shift Duration</p>
                   <p className="text-xl sm:text-2xl font-bold text-gray-900">
                     {allShifts.length > 0 ? (allShifts.reduce((total, shift) => {
-                      return total + shift.totalHours;
+                      const hours = typeof shift.totalHours === 'number' ? shift.totalHours : 0;
+                      return total + hours;
                     }, 0) / allShifts.length).toFixed(1) : '0'}h
                   </p>
                   <p className="text-xs sm:text-sm text-gray-500 mt-1">
@@ -532,9 +644,9 @@ export default function ManagerDashboard() {
                 {/* Left Section - White Background */}
                 <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
                   <div className="space-y-2">
-                    <div className="text-sm font-medium text-gray-900">{currentLocation?.name}</div>
+                    <div className="text-sm font-medium text-gray-900">{typeof currentLocation?.name === 'string' ? currentLocation.name : 'No Location'}</div>
                     <div className="text-xs text-gray-500">Location Details</div>
-                    <div className="text-xs text-gray-500">Radius: {currentLocation?.radius}km</div>
+                    <div className="text-xs text-gray-500">Radius: {typeof currentLocation?.radius === 'number' ? `${currentLocation.radius}km` : 'N/A'}</div>
                   </div>
                 </div>
 
@@ -606,7 +718,12 @@ export default function ManagerDashboard() {
                 <p className="text-sm text-gray-600">Real-time location tracking and monitoring</p>
               </div>
               <div className="w-full h-64 sm:h-80 xl:h-full">
-                <LocationMap currentLocation={currentLocation} />
+                <LocationMap currentLocation={currentLocation ? {
+                  latitude: currentLocation.latitude,
+                  longitude: currentLocation.longitude,
+                  name: currentLocation.name,
+                  radius: currentLocation.radius
+                } : undefined} />
               </div>
             </div>
             {/* User List Section */}
@@ -616,7 +733,7 @@ export default function ManagerDashboard() {
               </div>
 
               <div className="divide-y divide-gray-100 max-h-96 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-                {careworkers && careworkers.length > 0 ? careworkers.map((user, index) => (
+                {careworkers && careworkers.length > 0 ? careworkers.map((user) => (
                   <Collapse
                     key={user.id}
                     ghost
@@ -638,8 +755,8 @@ export default function ManagerDashboard() {
                                 className="border-2 border-gray-200"
                               />
                               <div className="flex flex-col">
-                                <span className="font-medium text-gray-900 text-sm sm:text-base">{user.name}</span>
-                                <span className="text-xs sm:text-sm text-gray-500">{user.role}</span>
+                                <span className="font-medium text-gray-900 text-sm sm:text-base">{user?.name}</span>
+                                <span className="text-xs sm:text-sm text-gray-500">{user?.role}</span>
                               </div>
                             </div>
 
@@ -734,31 +851,31 @@ export default function ManagerDashboard() {
                 <p className="text-sm text-gray-600">Track and manage employee shifts</p>
               </div>
               <div className="overflow-x-auto table-container table-responsive">
-                <Table
-                  columns={shiftTableColumns}
-                  dataSource={allShifts}
-                  rowKey="id"
-                  loading={loading}
-                  onRow={(record) => ({
-                    onClick: () => handleRowClick(record),
-                    className: 'cursor-pointer hover:bg-blue-50 transition-colors duration-200'
-                  })}
-                  pagination={{
-                    pageSize: 5,
+              <Table
+                columns={shiftTableColumns}
+                dataSource={allShifts}
+                rowKey="id"
+                loading={loading}
+                onRow={(record) => ({
+                  onClick: () => handleRowClick(record),
+                  className: 'cursor-pointer hover:bg-blue-50 transition-colors duration-200'
+                })}
+                pagination={{
+                  pageSize: 5,
                     showSizeChanger: false,
                     showQuickJumper: false,
                     showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`,
                     size: 'small',
                     responsive: true,
-                  }}
+                }}
                   scroll={{ x: 'max-content' }}
-                  size="small"
+                size="small"
                   className="responsive-table"
-                  locale={{ 
-                    emptyText: dataLoaded ? 'No shifts found' : 'Loading shifts...' 
-                  }}
-                />
-              </div>
+                locale={{ 
+                  emptyText: dataLoaded ? 'No shifts found' : 'Loading shifts...' 
+                }}
+              />
+            </div>
             </div>
             {/* Chart Section - Full Width */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4">
@@ -1009,18 +1126,18 @@ export default function ManagerDashboard() {
             <div className="space-y-6">
               {/* Header Section */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 pb-4 border-b border-gray-200">
-                <Avatar size={64} src={selectedShift.profile_pic} icon={<UserOutlined />} />
+                <Avatar size={64} src={selectedShift.user.profilePicUrl} icon={<UserOutlined />} />
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{selectedShift.name}</h3>
-                  <p className="text-gray-600">{selectedShift.email}</p>
+                  <h3 className="text-lg font-semibold text-gray-900">{selectedShift.user.name}</h3>
+                  <p className="text-gray-600">{selectedShift.user.email}</p>
                   <Tag color={
-                    selectedShift.status === 'completed' ? 'green' :
-                      selectedShift.status === 'in_progress' ? 'blue' :
-                        selectedShift.status === 'missed' ? 'red' : 'orange'
+                    selectedShift.status === 'COMPLETED' ? 'green' :
+                      selectedShift.status === 'IN_PROGRESS' ? 'blue' :
+                        selectedShift.status === 'MISSED' ? 'red' : 'orange'
                   }>
-                    {selectedShift.status === 'completed' ? 'Completed' :
-                      selectedShift.status === 'in_progress' ? 'In Progress' :
-                        selectedShift.status === 'missed' ? 'Missed' : 'Scheduled'}
+                    {selectedShift.status === 'COMPLETED' ? 'Completed' :
+                      selectedShift.status === 'IN_PROGRESS' ? 'In Progress' :
+                        selectedShift.status === 'MISSED' ? 'Missed' : 'Scheduled'}
                   </Tag>
                 </div>
               </div>
@@ -1032,7 +1149,7 @@ export default function ManagerDashboard() {
                     <CalendarOutlined className="text-blue-600" />
                     <span className="font-medium">Shift Date:</span>
                   </div>
-                  <p className="text-gray-600 ml-6">{formatDate(selectedShift.shift_date)}</p>
+                  <p className="text-gray-600 ml-6">{formatDate(selectedShift.date)}</p>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
@@ -1040,15 +1157,15 @@ export default function ManagerDashboard() {
                     <span className="font-medium">Duration:</span>
                   </div>
                   <p className="text-gray-600 ml-6">
-                    {formatTime(selectedShift.start_time)} - {formatTime(selectedShift.end_time)}
+                    {formatTime(selectedShift.startTime)} - {selectedShift.endTime ? formatTime(selectedShift.endTime) : 'Ongoing'}
                   </p>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <EnvironmentOutlined className="text-blue-600" />
-                    <span className="font-medium">Location ID:</span>
+                    <span className="font-medium">Location:</span>
                   </div>
-                  <p className="text-gray-600 ml-6">{selectedShift.location_id}</p>
+                  <p className="text-gray-600 ml-6">{selectedShift.location.name}</p>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
@@ -1067,7 +1184,7 @@ export default function ManagerDashboard() {
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg ml-6">
                   <p className="text-gray-700">
-                    {selectedShift.notes || 'No notes available for this shift.'}
+                    {selectedShift.note || 'No notes available for this shift.'}
                   </p>
                 </div>
               </div>
@@ -1077,16 +1194,16 @@ export default function ManagerDashboard() {
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <CalendarOutlined className="text-gray-500" />
-                    <span className="text-sm font-medium text-gray-600">Created:</span>
+                    <span className="text-sm font-medium text-gray-600">Day:</span>
                   </div>
-                  <p className="text-gray-500 text-sm ml-6">{formatDate(selectedShift.created_at)}</p>
+                  <p className="text-gray-500 text-sm ml-6">{selectedShift.day}</p>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <CalendarOutlined className="text-gray-500" />
-                    <span className="text-sm font-medium text-gray-600">Last Updated:</span>
+                    <ClockCircleOutlined className="text-gray-500" />
+                    <span className="text-sm font-medium text-gray-600">Total Hours:</span>
                   </div>
-                  <p className="text-gray-500 text-sm ml-6">{formatDate(selectedShift.updated_at)}</p>
+                  <p className="text-gray-500 text-sm ml-6">{selectedShift.totalHours || 0}h</p>
                 </div>
               </div>
             </div>

@@ -15,7 +15,7 @@ interface DatabaseUser {
 }
 
 interface UseAuthUserReturn {
-  auth0User: any;
+  auth0User: Record<string, unknown> | null;
   dbUser: DatabaseUser | null;
   isLoading: boolean;
   error: string | null;
@@ -28,7 +28,7 @@ export function useAuthUser(): UseAuthUserReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchOrCreateUser = async (auth0User: any) => {
+  const fetchOrCreateUser = async (auth0User: Record<string, unknown>) => {
     if (!auth0User?.email) return;
 
     try {
@@ -72,7 +72,7 @@ export function useAuthUser(): UseAuthUserReturn {
   }, [auth0Error]);
 
   return {
-    auth0User,
+    auth0User: auth0User as Record<string, unknown> | null,
     dbUser,
     isLoading: auth0Loading || isLoading,
     error,

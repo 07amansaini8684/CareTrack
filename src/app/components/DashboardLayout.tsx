@@ -2,6 +2,7 @@
 
 import { useUserContext } from '../contexts/UserContext';
 import Header from './Header';
+import Link from 'next/link';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -24,12 +25,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">Access Denied</h2>
           <p className="mb-4">Please log in to access the dashboard.</p>
-          <a
+          <Link
             href="/api/auth/login"
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium"
           >
             Login
-          </a>
+          </Link>
         </div>
       </div>
     );

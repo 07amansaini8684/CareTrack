@@ -3,9 +3,22 @@
 import { useEffect, useState } from 'react';
 import { useUserContext } from '../contexts/UserContext';
 
+interface DatabaseUser {
+  id: string;
+  name: string;
+  email: string;
+  profilePicUrl?: string | null;
+  role: 'CAREWORKER' | 'MANAGER';
+  averageHours?: number | null;
+  totalShifts?: number | null;
+  lastClockIn?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 interface UserCreationHandlerProps {
   children: React.ReactNode;
-  onUserReady?: (user: any) => void;
+  onUserReady?: (user: DatabaseUser) => void;
 }
 
 export default function UserCreationHandler({ children, onUserReady }: UserCreationHandlerProps) {

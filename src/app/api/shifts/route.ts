@@ -2,38 +2,80 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@auth0/nextjs-auth0';
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
-
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getSession();
-    
     if (!session?.user) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { user } = session;
-
-    // Get the user from database
+    const prisma = new PrismaClient();
+    
+    // Get user from database
     const dbUser = await prisma.user.findUnique({
-      where: { email: user.email! }
+      where: { email: session.user.email! },
+      select: { id: true, role: true }
     });
 
     if (!dbUser) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Get user's shifts
-    const shifts = await prisma.shift.findMany({
-      where: { userId: dbUser.id },
-      include: {
-        location: true
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+    let shifts;
+    
+    if (dbUser.role === 'MANAGER') {
+      // Managers can see all shifts
+      shifts = await prisma.shift.findMany({
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              profilePicUrl: true
+            }
+          },
+          location: {
+            select: {
+              id: true,
+              name: true,
+              latitude: true,
+              longitude: true,
+              radius: true
+            }
+          }
+        },
+        orderBy: { startTime: 'desc' }
+      });
+    } else {
+      // Workers can only see their own shifts
+      shifts = await prisma.shift.findMany({
+        where: { userId: dbUser.id },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              profilePicUrl: true
+            }
+          },
+          location: {
+            select: {
+              id: true,
+              name: true,
+              latitude: true,
+              longitude: true,
+              radius: true
+            }
+          }
+        },
+        orderBy: { startTime: 'desc' }
+      });
+    }
 
+    await prisma.$disconnect();
+    
     return NextResponse.json({ shifts });
   } catch (error) {
     console.error('Error fetching shifts:', error);
@@ -52,6 +94,8 @@ export async function POST(request: NextRequest) {
     const { user } = session;
     const body = await request.json();
     const { locationId, note } = body;
+
+    const prisma = new PrismaClient();
 
     // Get the user from database
     const dbUser = await prisma.user.findUnique({
@@ -91,7 +135,6 @@ export async function POST(request: NextRequest) {
     }
 
     const now = new Date();
-    const today = now.toISOString().split('T')[0]; // YYYY-MM-DD format
     const dayName = now.toLocaleDateString('en-US', { weekday: 'long' });
     const startTime = now.toISOString();
 
@@ -125,6 +168,8 @@ export async function POST(request: NextRequest) {
       data: { lastClockIn: now }
     });
 
+    await prisma.$disconnect();
+
     return NextResponse.json({ 
       shift,
       message: 'Shift started successfully'
@@ -146,6 +191,8 @@ export async function PATCH(request: NextRequest) {
     const { user } = session;
     const body = await request.json();
     const { action, shiftId, note } = body;
+
+    const prisma = new PrismaClient();
 
     // Get the user from database
     const dbUser = await prisma.user.findUnique({
@@ -262,6 +309,8 @@ export async function PATCH(request: NextRequest) {
         message: 'Note updated successfully'
       });
     }
+
+    await prisma.$disconnect();
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {

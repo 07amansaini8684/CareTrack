@@ -83,20 +83,20 @@ const Header: React.FC = () => {
                   }`}
               />
               <div className="flex-1">
-                <Text strong className="text-base sm:text-lg block">{user?.name || 'User'}</Text>
-                {isManager && (
+                <Text strong className="text-base sm:text-lg block">{typeof user?.name === 'string' ? user.name : 'User'}</Text>
+            {isManager && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-50 text-yellow-700 text-xs font-bold rounded-full border border-yellow-200">
-                    👑 Manager
-                  </span>
-                )}
-              </div>
+                👑 Manager
+              </span>
+            )}
+          </div>
             </div>
             <div className="mb-4 p-3 bg-gray-50 rounded-lg">
               <Text type="secondary" className="text-sm">
-                {user?.email}
-              </Text>
-            </div>
-            {!isManager && (
+              {typeof user?.email === 'string' ? user.email : 'No email'}
+            </Text>
+          </div>
+          {!isManager && (
               <div className="mb-4 py-3 border-t border-gray-100">
                 <Space direction="vertical" size="small" className="w-full">
                   <div className="flex items-center justify-between">
@@ -104,16 +104,16 @@ const Header: React.FC = () => {
                       <CrownOutlined className="text-yellow-500 text-lg" />
                       <Text className="text-sm font-medium">Request Manager Role</Text>
                     </div>
-                    <Switch
-                      size="small"
-                      checked={requestManager}
-                      loading={updatingRole}
-                      onChange={handleRoleUpdate}
-                    />
+                <Switch
+                  size="small"
+                  checked={requestManager}
+                  loading={updatingRole}
+                  onChange={handleRoleUpdate}
+                />
                   </div>
-                </Space>
-              </div>
-            )}
+              </Space>
+            </div>
+          )}
           </div>
         </div>
       ),
@@ -187,53 +187,53 @@ const Header: React.FC = () => {
   return (
     <>
       <AntHeader className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 border-b border-blue-500 shadow-lg px-3 sm:px-6 leading-16 sm:leading-18 sticky top-0 z-[9999]">
-        <div className="flex justify-between items-center max-w-7xl mx-auto h-full">
-          {/* Logo Section - Left */}
+      <div className="flex justify-between items-center max-w-7xl mx-auto h-full">
+        {/* Logo Section - Left */}
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="relative rounded-xl overflow-hidden shadow-lg border-2 border-white/20 backdrop-blur-sm">
-              <Image
-                src="https://i.pinimg.com/736x/77/d6/70/77d670dc0d4c230d8f400845a8e59857.jpg"
-                alt="CareTrack Logo"
+            <Image
+              src="https://i.pinimg.com/736x/77/d6/70/77d670dc0d4c230d8f400845a8e59857.jpg"
+              alt="CareTrack Logo"
                 width={48}
                 height={48}
                 className="w-10 h-10 sm:w-12 sm:h-12 object-cover"
-                priority
-              />
-            </div>
+              priority
+            />
+          </div>
             <div className="flex flex-col">
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white m-0 leading-none font-sans tracking-wider drop-shadow-lg">
-                CareTrack
-              </h1>
+            CareTrack
+          </h1>
               <div className="text-xs sm:text-sm text-blue-100 font-medium tracking-wide">
                 Healthcare Management
               </div>
             </div>
-          </div>
+        </div>
 
           {/* Desktop Navigation - Hidden on mobile */}
           <div className="hidden md:flex items-center gap-6 flex-1 justify-end">
-            {/* Navigation - Center */}
+          {/* Navigation - Center */}
             <div className="flex-1 flex justify-center max-w-lg">
-              <Menu
-                mode="horizontal"
-                items={navItems}
+            <Menu
+              mode="horizontal"
+              items={navItems}
                 className="border-none bg-transparent text-sm flex-1 justify-center [&_.ant-menu-item]:text-white [&_.ant-menu-item]:hover:text-blue-100 [&_.ant-menu-item]:hover:bg-white/10 [&_.ant-menu-item]:rounded-lg"
-                selectedKeys={[]}
-              />
-            </div>
+              selectedKeys={[]}
+            />
+          </div>
 
-            {/* User Profile Section - Right */}
-            {user && (
-              <div className="flex items-center gap-4">
+          {/* User Profile Section - Right */}
+          {user && (
+            <div className="flex items-center gap-4">
                 {/* Welcome Text */}
                 <div className="text-right hidden lg:block">
                   <div className="text-sm font-medium text-blue-100 leading-tight">
-                    Welcome back!
-                  </div>
-                  <div className="text-sm font-semibold text-white leading-tight">
-                    {user?.name || user?.email}
-                  </div>
+                  Welcome back!
                 </div>
+                  <div className="text-sm font-semibold text-white leading-tight">
+                  {typeof user?.name === 'string' ? user.name : (typeof user?.email === 'string' ? user.email : 'User')}
+                </div>
+              </div>
 
                 {/* Notification Bell */}
                 <Badge count={3} size="small" className="cursor-pointer">
@@ -244,7 +244,7 @@ const Header: React.FC = () => {
                   />
                 </Badge>
 
-                {/* User Avatar with Dropdown */}
+              {/* User Avatar with Dropdown */}
                 <Dropdown
                   menu={{
                     items: userMenuItems,
@@ -403,10 +403,10 @@ const Header: React.FC = () => {
                 />
                 <div className="flex-1">
                   <div className="font-semibold text-gray-900 text-base">
-                    {user?.name || 'User'}
+                    {typeof user?.name === 'string' ? user.name : 'User'}
                   </div>
                   <div className="text-sm text-gray-600">
-                    {user?.email}
+                    {typeof user?.email === 'string' ? user.email : 'No email'}
                   </div>
                   {isManager && (
                     <div className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-50 text-yellow-700 text-xs font-bold rounded-full border border-yellow-200 mt-2">

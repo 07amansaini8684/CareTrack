@@ -36,7 +36,6 @@ const LocationNotifications: React.FC<LocationNotificationsProps> = ({
   userLocation,
   workLocation
 }) => {
-  const [isInsideGeofence, setIsInsideGeofence] = useState<boolean>(false);
   const [previousState, setPreviousState] = useState<boolean>(false);
   const [showNotification, setShowNotification] = useState<boolean>(false);
   const [notificationMessage, setNotificationMessage] = useState<string>('');
@@ -61,8 +60,6 @@ const LocationNotifications: React.FC<LocationNotificationsProps> = ({
     const currentlyInside = distanceInMeters <= radiusInMeters;
     
     
-    setIsInsideGeofence(currentlyInside);
-
     // Detect state change and show notification
     if (currentlyInside !== previousState) {
       if (currentlyInside) {

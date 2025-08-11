@@ -38,10 +38,10 @@ export function hasPermission(userRole: string, permission: string): boolean {
   return (permissions as readonly string[]).includes(permission);
 }
 
-export function createUserWithRole(user: any) {
+export function createUserWithRole(user: Record<string, unknown>) {
   if (!user) return null;
   
-  const role = getUserRole(user.email);
+  const role = getUserRole(user.email as string);
   
   return {
     ...user,

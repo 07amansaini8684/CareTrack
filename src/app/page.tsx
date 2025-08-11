@@ -4,15 +4,16 @@ import { useUser } from '@auth0/nextjs-auth0/client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from "next/image";
-import { 
-  ClockCircleOutlined, 
-  TeamOutlined, 
-  EnvironmentOutlined, 
+import {
+  ClockCircleOutlined,
+  TeamOutlined,
+  EnvironmentOutlined,
   BarChartOutlined,
   SafetyOutlined,
   MobileOutlined
 } from '@ant-design/icons';
 import mainImage from '../assets/main.png';
+import Link from 'next/link';
 
 export default function Home() {
   const { user, error, isLoading } = useUser();
@@ -75,18 +76,18 @@ export default function Home() {
 
             {/* CTA Buttons */}
             <div className="flex items-center gap-4">
-              <a
+              <Link
                 href="/api/auth/login"
                 className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
               >
                 Log in
-              </a>
-          <a
+              </Link>
+          <Link
             href="/api/auth/login"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
           >
                 Get Started
-          </a>
+          </Link>
             </div>
           </div>
         </div>
@@ -109,12 +110,12 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <a
+            <Link
               href="/api/auth/login"
               className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors border-2 border-gray-900"
             >
               Start Free Trial
-          </a>
+          </Link>
           <a
               href="#demo"
               className="bg-white hover:bg-gray-50 text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg transition-colors border-2 border-gray-900"
@@ -161,7 +162,7 @@ export default function Home() {
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Real-Time Location Tracking</h3>
               <p className="text-gray-600">
                 Monitor care workers in real-time with GPS tracking and geofencing. 
-                Ensure they're at the right locations when they should be.
+                Ensure they&apos;re at the right locations when they should be.
               </p>
             </div>
 
@@ -287,12 +288,12 @@ export default function Home() {
             Join hundreds of healthcare organizations already using CareTrack to improve efficiency and care quality.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
+            <Link
               href="/api/auth/login"
               className="bg-white hover:bg-gray-100 text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
             >
               Start Free Trial
-        </a>
+        </Link>
         <a
               href="#contact"
               className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg transition-colors"

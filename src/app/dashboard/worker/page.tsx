@@ -7,7 +7,7 @@ import RoleGuard from '../../components/RoleGuard';
 import LocationMap from '../../components/Map';
 import LocationNotifications from '../../components/LocationNotifications';
 import { useLocationTracking } from '../../hooks/useLocationTracking';
-import {Button, Tag,  Modal, Form, Input, Table, Select, Card, message } from 'antd';
+import {Button, Tag,  Modal, Form, Input, Table, Select, message } from 'antd';
 import {
   UserOutlined,
   ClockCircleOutlined,
@@ -24,34 +24,93 @@ import {
   EditOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
-import { users, locationData, IndividualShiftData } from '@/app/api/Data/dummy';
+// import { users, locationData, IndividualShiftData } from '@/app/api/Data/dummy';
 import { useUserContext } from '../../contexts/UserContext';
 import { ROLES } from '../../utils/roleManager';
 import dynamic from 'next/dynamic';
-
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 export default function WorkerDashboard() {
   const { user, isLoading, isManager, mounted, dbUser } = useUserContext();
   const router = useRouter();
-  const [currentLocation, setCurrentLocation] = useState<any>(null);
-  const [selectedShift, setSelectedShift] = useState<any>(null);
+  const [currentLocation, setCurrentLocation] = useState<{
+    id: string;
+    name: string;
+    latitude: number;
+    longitude: number;
+    radius: number;
+    startTime: string;
+    endTime: string;
+  } | null>(null);
+  const [selectedShift, setSelectedShift] = useState<{
+    id: string;
+    date: string;
+    day: string;
+    startTime: string;
+    endTime?: string;
+    totalHours?: number;
+    status: string;
+    note?: string;
+    location?: {
+      name: string;
+      latitude: number;
+      longitude: number;
+      radius: number;
+    };
+  } | null>(null);
   const [isShiftDetailsVisible, setIsShiftDetailsVisible] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState('current');
 
 
-  const [activeShift, setActiveShift] = useState<any>(null);
-  const [userShifts, setUserShifts] = useState<any[]>([]);
+  const [activeShift, setActiveShift] = useState<{
+    id: string;
+    date: string;
+    startTime: string;
+    endTime?: string;
+    totalHours?: number;
+    status: string;
+    note?: string;
+    location?: {
+      name: string;
+      latitude: number;
+      longitude: number;
+      radius: number;
+    };
+  } | null>(null);
+  const [userShifts, setUserShifts] = useState<Array<{
+    id: string;
+    date: string;
+    day: string;
+    startTime: string;
+    endTime?: string;
+    totalHours?: number;
+    status: string;
+    note?: string;
+    location?: {
+      name: string;
+      latitude: number;
+      longitude: number;
+      radius: number;
+    };
+  }>>([]);
   const [isStartingShift, setIsStartingShift] = useState(false);
   const [isEndingShift, setIsEndingShift] = useState(false);
   const [isNoteModalVisible, setIsNoteModalVisible] = useState(false);
   const [noteForm] = Form.useForm();
   const [startShiftForm] = Form.useForm();
   const [isStartShiftModalVisible, setIsStartShiftModalVisible] = useState(false);
-  const [locations, setLocations] = useState<any[]>([]);
+  const [locations, setLocations] = useState<Array<{
+    id: string;
+    name: string;
+    latitude: number;
+    longitude: number;
+    radius: number;
+    startTime: string;
+    endTime: string;
+  }>>([]);
 
-  const geofences: any[] = locations.map(location => ({
+  const geofences: Array<{ id: string; name: string; latitude: number; longitude: number; radius: number }> = locations.map(location => ({
     id: location.id,
     name: location.name,
     latitude: location.latitude,
@@ -100,7 +159,7 @@ export default function WorkerDashboard() {
         setUserShifts(data.shifts);
 
   
-        const active = data.shifts.find((shift: any) => shift.status === 'IN_PROGRESS');
+        const active = data.shifts.find((shift: Record<string, unknown>) => shift.status === 'IN_PROGRESS');
         setActiveShift(active || null);
 
         
@@ -108,8 +167,8 @@ export default function WorkerDashboard() {
           setCurrentLocation(active.location);
         }
       }
-    } catch (error) {
-      console.error('Error fetching shifts:', error);
+    } catch (err) {
+      console.error('Error fetching shifts:', err);
     }
   };
 
@@ -125,8 +184,8 @@ export default function WorkerDashboard() {
           setCurrentLocation(data.locations[0]);
         }
       }
-    } catch (error) {
-      console.error('Error fetching locations:', error);
+    } catch (err) {
+      console.error('Error fetching locations:', err);
     }
   };
 
@@ -153,7 +212,8 @@ export default function WorkerDashboard() {
         const errorData = await response.json();
         message.error(errorData.error || 'Failed to start shift');
       }
-    } catch (error) {
+    } catch (err) {
+      console.error('Error starting shift:', err);
       message.error('Failed to start shift. Please try again.');
     } finally {
       setIsStartingShift(false);
@@ -184,7 +244,7 @@ export default function WorkerDashboard() {
         const errorData = await response.json();
         message.error(errorData.error || 'Failed to end shift');
       }
-    } catch (error) {
+    } catch (err) {
       message.error('Failed to end shift. Please try again.');
     } finally {
       setIsEndingShift(false);
@@ -220,12 +280,27 @@ export default function WorkerDashboard() {
         const errorData = await response.json();
         message.error(errorData.error || 'Failed to update note');
       }
-    } catch (error) {
+    } catch (err) {
       message.error('Failed to update note. Please try again.');
     }
   };
 
-  const handleRowClick = (record: any) => {
+  const handleRowClick = (record: {
+    id: string;
+    date: string;
+    day: string;
+    startTime: string;
+    endTime?: string;
+    totalHours?: number;
+    status: string;
+    note?: string;
+    location?: {
+      name: string;
+      latitude: number;
+      longitude: number;
+      radius: number;
+    };
+  }) => {
     setSelectedShift(record);
     setIsShiftDetailsVisible(true);
   };
@@ -235,8 +310,11 @@ export default function WorkerDashboard() {
     setSelectedShift(null);
   };
 
-  const handleEditNote = (shift: any) => {
-    setSelectedShift(shift);
+  const handleEditNote = (shift: {
+    id: string;
+    note?: string;
+  }) => {
+    setSelectedShift(shift as any); // Type assertion for compatibility
     noteForm.setFieldsValue({ note: shift.note || '' });
     setIsNoteModalVisible(true);
   };
@@ -250,21 +328,21 @@ export default function WorkerDashboard() {
     });
   };
 
-  const getTimeAgo = (dateString: string) => {
-    const now = new Date();
-    const date = new Date(dateString);
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+  // const getTimeAgo = (dateString: string) => {
+  //   const now = new Date();
+  //   const date = new Date(dateString);
+  //   const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
 
-    if (diffInMinutes < 60) {
-      return `${diffInMinutes}m ago`;
-    } else if (diffInMinutes < 1440) {
-      const hours = Math.floor(diffInMinutes / 60);
-      return `${hours}h ago`;
-    } else {
-      const days = Math.floor(diffInMinutes / 1440);
-      return `${days}d ago`;
-    }
-  };
+  //   if (diffInMinutes < 60) {
+  //     return `${diffInMinutes}m ago`;
+  //   } else if (diffInMinutes < 1440) {
+  //     const hours = Math.floor(diffInMinutes / 60);
+  //     return `${hours}h ago`;
+  //   } else {
+  //     const days = Math.floor(diffInMinutes / 1440);
+  //     return `${days}d ago`;
+  //   }
+  // };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -275,29 +353,7 @@ export default function WorkerDashboard() {
     });
   };
 
-  const getStatusIcon = (user: any) => {
-    if (!user.lastClockIn) return <CloseCircleOutlined className="text-red-500" />;
 
-    const lastClockIn = new Date(user.lastClockIn);
-    const now = new Date();
-    const diffInHours = (now.getTime() - lastClockIn.getTime()) / (1000 * 60 * 60);
-
-    if (diffInHours < 1) return <PlayCircleOutlined className="text-green-500" />;
-    if (diffInHours < 8) return <PauseCircleOutlined className="text-yellow-500" />;
-    return <CloseCircleOutlined className="text-red-500" />;
-  };
-
-  const getStatusText = (user: any) => {
-    if (!user.lastClockIn) return 'Inactive';
-
-    const lastClockIn = new Date(user.lastClockIn);
-    const now = new Date();
-    const diffInHours = (now.getTime() - lastClockIn.getTime()) / (1000 * 60 * 60);
-
-    if (diffInHours < 1) return 'Active';
-    if (diffInHours < 8) return 'On Break';
-    return 'Offline';
-  };
 
   
   const shiftTableColumns = [
@@ -305,7 +361,7 @@ export default function WorkerDashboard() {
       title: 'Date',
       dataIndex: 'date',
       key: 'date',
-      render: (text: string, record: any) => (
+      render: (text: string, record: { day: string }) => (
         <div>
           <div className="font-medium text-gray-900">{formatDate(text)}</div>
           <div className="text-sm text-gray-500">{record.day}</div>
@@ -316,10 +372,10 @@ export default function WorkerDashboard() {
     {
       title: 'Time',
       key: 'time',
-      render: (record: any) => (
+      render: (record: { startTime: string; endTime?: string; totalHours?: number }) => (
         <div>
           <div className="text-gray-900">{formatTime(record.startTime)} - {record.endTime ? formatTime(record.endTime) : 'Ongoing'}</div>
-          <div className="text-sm text-gray-500">{record.totalHours}h</div>
+          <div className="text-sm text-gray-500">{record.totalHours || 0}h</div>
         </div>
       ),
     },
@@ -327,7 +383,7 @@ export default function WorkerDashboard() {
       title: 'Location',
       dataIndex: 'location',
       key: 'location',
-      render: (location: any) => <span className="text-gray-600">{location?.name || 'No location'}</span>,
+      render: (location?: { name: string }) => <span className="text-gray-600">{location?.name || 'No location'}</span>,
       responsive: ['lg' as const],
     },
     {
@@ -348,7 +404,7 @@ export default function WorkerDashboard() {
     {
       title: 'Actions',
       key: 'actions',
-      render: (record: any) => (
+      render: (record: { id: string; note?: string }) => (
         <Button
           type="link"
           icon={<EditOutlined />}
@@ -435,7 +491,7 @@ export default function WorkerDashboard() {
   const totalShifts = monthData.filter(shift => shift.status === 'COMPLETED').length;
   const totalHours = monthData.reduce((total, shift) => total + (shift.totalHours || 0), 0);
   const completedShifts = monthData.filter(shift => shift.status === 'COMPLETED').length;
-  const ongoingShifts = monthData.filter(shift => shift.status === 'IN_PROGRESS').length;
+  // const ongoingShifts = monthData.filter(shift => shift.status === 'IN_PROGRESS').length;
   const avgHoursPerShift = totalShifts > 0 ? (totalHours / totalShifts).toFixed(1) : '0';
 
   if (!mounted || isLoading) {
@@ -753,7 +809,12 @@ export default function WorkerDashboard() {
                       name: activeShift.location.name,
                       radius: activeShift.location.radius
                     } : 
-                    currentLocation
+                    currentLocation ? {
+                      latitude: currentLocation.latitude,
+                      longitude: currentLocation.longitude,
+                      name: currentLocation.name,
+                      radius: currentLocation.radius
+                    } : undefined
                   }
                   userLocation={userCurrentLocation ? {
                     latitude: userCurrentLocation.latitude,
