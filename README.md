@@ -242,4 +242,22 @@ I'm excited about the possibility of working together again! Whether it's enhanc
 
 ---
 
+🌐 Live Demo
+If you’d like to try the product, you can access it here:
+🔗 CareTrack Live - https://care-track-eight.vercel.app/
+
+🔐 Demo Credentials
+Manager Account
+Email: manager@example.com
+
+Password: Manager@123
+
+Care Worker Account
+Email: careworker@example.com
+
+Password: Care@123
+
+⚠️ Important:
+If you log in as a Care Worker, do not click on the "Request to Manager" option under your profile unless you intentionally want to be promoted to Manager. Once promoted, there’s no way to revert back to a Care Worker role.
+
 *Built with care and Next.js*
